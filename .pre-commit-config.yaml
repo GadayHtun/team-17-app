@@ -1,0 +1,54 @@
+# Pre-commit hooks — the local, fast half of the gates.
+# CI (ci.yml + security.yml) stays the real enforcement; these catch the cheap
+# mistakes before they cost a push. Install once: `pip install pre-commit && pre-commit install`.
+# Run on everything ad hoc: `pre-commit run --all-files`.
+#
+# Deliberately NO unit tests / e2e here — those belong in CI (see SETUP.md, keep
+# commits fast so beginners aren't blocked). gitleaks version is pinned to match
+# security.yml (ghcr.io/gitleaks/gitleaks:v8.18.4).
+
+repos:
+  # --- basic hygiene ---
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=1024"]
+      - id: check-yaml
+      - id: check-json
+      - id: detect-private-key
+
+  # --- secrets scan (matches the CI gitleaks version) ---
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.4
+    hooks:
+      - id: gitleaks
+
+  # --- project-specific + toolchain (local, uses the repo's own installs) ---
+  - repo: local
+    hooks:
+      # Red line: runtime exam files under data/ hold live answer keys — never commit them.
+      - id: no-data-dir
+        name: block committing data/ (live answer keys — CLAUDE.md red line)
+        entry: data/ must never be committed (it holds live answer keys). Unstage it.
+        language: fail
+        files: '^data/'
+
+      # ESLint on staged TS/JS via the repo's flat config (next/eslint 9).
+      - id: eslint
+        name: eslint
+        entry: npx eslint --fix
+        language: system
+        files: \.(ts|tsx|js|jsx|mjs)$
+        exclude: '^(node_modules|\.next)/'
+
+      # Type check the whole project (fast enough; catches contract-shape breaks).
+      - id: tsc
+        name: tsc --noEmit
+        entry: npx tsc --noEmit
+        language: system
+        pass_filenames: false
+        files: \.(ts|tsx)$
