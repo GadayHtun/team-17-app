@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { generateQuestions, GenerationError } from "@/api/client";
+import { ApiError, generateQuestions } from "@/api/client";
 import { useExamDraft } from "../exam-draft-context";
 import { TESTID } from "@/shared/testids";
 import type { Difficulty } from "@/shared/types";
@@ -96,7 +96,7 @@ export default function CreateExamPage() {
         medium: Number(form.medium),
         hard: Number(form.hard),
       };
-      const questions = await generateQuestions({
+      const { questions } = await generateQuestions({
         jobTitle: form.jobTitle.trim(),
         jobDescription: form.jobDescription.trim(),
         counts,
@@ -109,9 +109,7 @@ export default function CreateExamPage() {
       router.push("/review");
     } catch (err) {
       setSubmitError(
-        err instanceof GenerationError
-          ? err.message
-          : "Something went wrong. Please try again."
+        err instanceof ApiError ? err.message : "Something went wrong. Please try again."
       );
     } finally {
       setIsLoading(false);
