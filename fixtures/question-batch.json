@@ -7,15 +7,69 @@
       "difficulty": "easy"
     },
     {
+      "text": "What does JSX stand for in React?",
+      "options": ["JavaScript XML", "Java Syntax Extension", "JSON XML", "JavaScript Extension"],
+      "answerIndex": 0,
+      "difficulty": "easy"
+    },
+    {
+      "text": "Which HTTP method is idempotent by definition?",
+      "options": ["POST", "PUT", "PATCH", "DELETE"],
+      "answerIndex": 1,
+      "difficulty": "easy"
+    },
+    {
+      "text": "What is the default port for PostgreSQL?",
+      "options": ["3306", "5432", "27017", "6379"],
+      "answerIndex": 1,
+      "difficulty": "easy"
+    },
+    {
       "text": "Why would you pass a dependency array to useEffect?",
       "options": ["To control when the effect re-runs", "To style the component", "To register a route", "To enforce type safety"],
       "answerIndex": 0,
       "difficulty": "medium"
     },
     {
+      "text": "What is the purpose of Next.js middleware?",
+      "options": ["To run code before a request is completed", "To style components", "To define database schemas", "To manage CLI commands"],
+      "answerIndex": 0,
+      "difficulty": "medium"
+    },
+    {
+      "text": "When would you use a REST API over GraphQL?",
+      "options": ["When the client needs flexible field selection", "When the resource graph is simple and caching via HTTP is desired", "When real-time subscriptions are required", "When the schema changes frequently"],
+      "answerIndex": 1,
+      "difficulty": "medium"
+    },
+    {
+      "text": "What is a Docker multi-stage build primarily used for?",
+      "options": ["Running multiple containers", "Reducing final image size by separating build and runtime", "Orchestrating multiple services", "Load balancing traffic"],
+      "answerIndex": 1,
+      "difficulty": "medium"
+    },
+    {
       "text": "Which pattern avoids stale closures inside setInterval in React?",
       "options": ["Wrapping in useMemo", "Using Context", "Rendering through a Portal", "Storing the latest value in a ref"],
       "answerIndex": 3,
+      "difficulty": "hard"
+    },
+    {
+      "text": "What problem does React Server Components solve that SSR alone does not?",
+      "options": ["Faster page loads", "Eliminating client-side JavaScript for non-interactive components", "Better SEO", "Hot module replacement"],
+      "answerIndex": 1,
+      "difficulty": "hard"
+    },
+    {
+      "text": "In a distributed system, what does the CAP theorem say about a partition-tolerant system?",
+      "options": ["It can be both consistent and available", "It must sacrifice either consistency or availability", "It cannot have a database", "It must use eventual consistency"],
+      "answerIndex": 1,
+      "difficulty": "hard"
+    },
+    {
+      "text": "What is the key trade-off of using eventual consistency over strong consistency?",
+      "options": ["Simpler code", "Higher availability and performance at the cost of temporary stale reads", "Stronger data integrity", "Easier debugging"],
+      "answerIndex": 1,
       "difficulty": "hard"
     }
   ]
