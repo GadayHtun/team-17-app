@@ -2,9 +2,12 @@
  * Expired page — shown when exam status is "used" (410).
  * Covers: revisiting a link after successful submit, or duplicate open.
  */
+import { TESTID } from "@/shared/testids";
+
 export default function ExamExpiredPage() {
   return (
     <div
+      data-testid={TESTID.expiredPage}
       style={{
         minHeight: "100vh",
         display: "flex",
@@ -15,6 +18,7 @@ export default function ExamExpiredPage() {
       }}
     >
       <div
+        data-testid="expired-page"
         style={{
           maxWidth: 400,
           width: "100%",

@@ -2,9 +2,12 @@
  * Success page — shown after a 2xx submit response.
  * Confirmation only, no score, no way back into the exam.
  */
+import { TESTID } from "@/shared/testids";
+
 export default function ExamSuccessPage() {
   return (
     <div
+      data-testid={TESTID.successPage}
       style={{
         minHeight: "100vh",
         display: "flex",
@@ -15,6 +18,7 @@ export default function ExamSuccessPage() {
       }}
     >
       <div
+        data-testid="success-page"
         style={{
           maxWidth: 400,
           width: "100%",

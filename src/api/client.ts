@@ -21,6 +21,14 @@ export class ApiError extends Error {
   }
 }
 
+/** LLM generation failed after retries (contracts §4: 502). */
+export class GenerationError extends ApiError {
+  constructor(message: string) {
+    super(502, message);
+    this.name = "GenerationError";
+  }
+}
+
 const OFFLINE_MESSAGE = "Couldn't reach the server. Check your connection and try again.";
 
 /** Pull `{ error }` off a non-2xx body; contracts §4 responses carry one. */

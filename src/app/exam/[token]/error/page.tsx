@@ -2,9 +2,12 @@
  * Generic error page — shown for 404 (malformed/unknown token)
  * and unexpected errors.
  */
+import { TESTID } from "@/shared/testids";
+
 export default function ExamErrorPage() {
   return (
  <div
+      data-testid={TESTID.errorPage}
       style={{
         minHeight: "100vh",
         display: "flex",
@@ -15,6 +18,7 @@ export default function ExamErrorPage() {
       }}
     >
       <div
+        data-testid="error-page"
         style={{
           maxWidth: 400,
           width: "100%",
