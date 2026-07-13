@@ -1,66 +1,51 @@
-import Image from "next/image";
-import styles from "./page.module.css";
-
+/**
+ * Root page — exam platform landing.
+ * Ticket 1 (CreateExam) will eventually live here.
+ */
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontFamily: "var(--font-geist-sans), system-ui, sans-serif",
+        background: "#1A1A1A",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 480,
+          width: "100%",
+          padding: "48px 32px",
+          background: "#2A2A2A",
+          borderRadius: 16,
+          textAlign: "center",
+        }}
+      >
+        <h1
+          style={{
+            fontSize: 24,
+            fontWeight: 700,
+            margin: "0 0 12px",
+            color: "#FFFFFF",
+          }}
+        >
+          Exam Platform
+        </h1>
+        <p
+          style={{
+            fontSize: 15,
+            color: "#A0A0A0",
+            margin: 0,
+            lineHeight: 1.6,
+          }}
+        >
+          AI-powered MCQ screening tool. Create exams, send links, and
+          evaluate candidates — all in one place.
+        </p>
+      </div>
     </div>
   );
 }
