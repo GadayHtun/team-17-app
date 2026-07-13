@@ -1,0 +1,33 @@
+{
+  "token": "8f3a91cd-77b2-4c1e-9d3f-2a6b8e4f0c15",
+  "jobTitle": "Frontend Developer (React)",
+  "candidateEmail": "candidate@mail.com",
+  "createdAt": "2026-07-07T10:30:00Z",
+  "status": "active",
+  "questions": [
+    {
+      "id": "q01",
+      "text": "Which hook is used to manage local state in a React function component?",
+      "options": ["useEffect", "useState", "useRef", "useMemo"],
+      "answerIndex": 1,
+      "difficulty": "easy",
+      "marks": 1
+    },
+    {
+      "id": "q02",
+      "text": "Why would you pass a dependency array to useEffect?",
+      "options": ["To control when the effect re-runs", "To style the component", "To register a route", "To enforce type safety"],
+      "answerIndex": 0,
+      "difficulty": "medium",
+      "marks": 2
+    },
+    {
+      "id": "q03",
+      "text": "Which pattern avoids stale closures inside setInterval in React?",
+      "options": ["Wrapping in useMemo", "Using Context", "Storing the latest value in a ref", "Rendering through a Portal"],
+      "answerIndex": 2,
+      "difficulty": "hard",
+      "marks": 3
+    }
+  ]
+}

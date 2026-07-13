@@ -1,0 +1,26 @@
+# gitleaks config — auto-loaded from repo root by both the pre-commit hook and
+# the CI docker run (`detect --source /repo`). Keeps the default rule set; only
+# narrows known false positives.
+[extend]
+useDefault = true
+
+[allowlist]
+description = """
+Exam tokens are UUID v4 (crypto.randomUUID(), contracts §2) — public one-time
+link identifiers, NOT credentials. gitleaks' generic-api-key rule flags their
+entropy. Real secrets (LLM_API_KEY, SMTP_*) are not UUID-shaped and are never
+committed (they live in .env, gitignored), so this stays safe.
+"""
+
+# 1. Ignore UUID v4 values anywhere — the exam token's only committed home is a
+#    fixture, but a bare UUID is never a real secret.
+regexes = [
+  '''[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}''',
+]
+
+# 2. Committed fixtures are mock data by design (security-review skill: placeholder
+#    emails/names only, no real personal data). Runtime answer keys live in data/,
+#    which is gitignored and never scanned as tracked content.
+paths = [
+  '''fixtures/.*''',
+]

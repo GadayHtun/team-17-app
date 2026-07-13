@@ -1,0 +1,22 @@
+{
+  "questions": [
+    {
+      "text": "Which hook is used to manage local state in a React function component?",
+      "options": ["useEffect", "useState", "useRef", "useMemo"],
+      "answerIndex": 1,
+      "difficulty": "easy"
+    },
+    {
+      "text": "Why would you pass a dependency array to useEffect?",
+      "options": ["To control when the effect re-runs", "To style the component", "To register a route", "To enforce type safety"],
+      "answerIndex": 0,
+      "difficulty": "medium"
+    },
+    {
+      "text": "Which pattern avoids stale closures inside setInterval in React?",
+      "options": ["Wrapping in useMemo", "Using Context", "Rendering through a Portal", "Storing the latest value in a ref"],
+      "answerIndex": 3,
+      "difficulty": "hard"
+    }
+  ]
+}

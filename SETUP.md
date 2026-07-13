@@ -14,7 +14,14 @@ Delete this file (or keep it) once you're set up.
 ```bash
 cp .env.example .env      # fill in real values LOCALLY
 # add real CI/deploy secrets in GitHub, not in code (step 4)
+
+pip install pre-commit && pre-commit install   # turn on the local hooks (.pre-commit-config.yaml)
 ```
+
+Everyone runs `pre-commit install` once per clone — the hooks live in the
+committed `.pre-commit-config.yaml`, but each person has to activate their own
+local `.git/hooks/`. This runs gitleaks + eslint + tsc on commit (fast; tests
+stay in CI). Skip it and you lose the local secret-scan safety net.
 
 Fill in the README **Quickstart** so a teammate can clone → run in 2 minutes. If that
 doesn't work, fix it first — everything else depends on people being able to run the app.
@@ -73,7 +80,7 @@ jobs. (Avoid Vercel Hobby for team projects — its free tier forbids teams/comm
 "scripts": {
   "lint": "eslint .",       // turns on the Lint check
   "test": "vitest run",     // turns on the Test check
-  "build": "vite build"     // turns on the Build check
+  "build": "next build"     // turns on the Build check
 }
 ```
 
