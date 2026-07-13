@@ -7,7 +7,10 @@
  */
 import type { Difficulty, NewQuestion } from "@/shared/types";
 
-/** A non-2xx response. `status` carries the contracts §4 code (400/404/410/502). */
+/**
+ * A failed call. `status` carries the contracts §4 code (400/404/410/502), or
+ * 0 when the request never reached the server (offline, DNS, connection reset).
+ */
 export class ApiError extends Error {
   readonly status: number;
 
@@ -26,43 +29,64 @@ export class GenerationError extends ApiError {
   }
 }
 
+const OFFLINE_MESSAGE = "Couldn't reach the server. Check your connection and try again.";
+
+/** Pull `{ error }` off a non-2xx body; contracts §4 responses carry one. */
+async function errorMessage(response: Response): Promise<string | null> {
+  return response
+    .json()
+    .then((data: unknown) =>
+      typeof (data as { error?: unknown })?.error === "string"
+        ? (data as { error: string }).error
+        : null,
+    )
+    .catch(() => null);
+}
+
 /**
  * Generic fetch JSON helper. Throws `ApiError` on non-2xx responses.
  * Used by pages that need ad-hoc API calls (e.g. exam fetch, submit).
  */
 export async function fetchApi<T>(url: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+      },
+    });
+  } catch {
+    throw new ApiError(0, OFFLINE_MESSAGE);
+  }
 
   if (!res.ok) {
-    throw new ApiError(res.status, `API error: ${res.status}`);
+    throw new ApiError(res.status, (await errorMessage(res)) ?? `API error: ${res.status}`);
   }
 
   return res.json() as Promise<T>;
 }
 
 async function post<T>(path: string, body: unknown): Promise<T> {
-  const response = await fetch(path, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  let response: Response;
+  try {
+    response = await fetch(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    throw new ApiError(0, OFFLINE_MESSAGE);
+  }
 
   if (!response.ok) {
-    const message = await response
-      .json()
-      .then((data: unknown) =>
-        typeof (data as { error?: unknown })?.error === "string"
-          ? ((data as { error: string }).error)
-          : null,
-      )
-      .catch(() => null);
-    throw new ApiError(response.status, message ?? `Request failed (${response.status})`);
+    // 502 is the one the HR form retries on, so it gets a human message.
+    const message =
+      response.status === 502
+        ? "Question generation failed. Please try again."
+        : ((await errorMessage(response)) ?? `Request failed (${response.status})`);
+    throw new ApiError(response.status, message);
   }
 
   return (await response.json()) as T;
