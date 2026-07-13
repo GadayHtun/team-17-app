@@ -260,6 +260,16 @@ export default function TakeExamPage() {
     return () => { cancelled = true; };
   }, [token]);
 
+  // Redirect to end pages on error
+  useEffect(() => {
+    if (!error) return;
+    if (error === "not-found") {
+      router.replace(`/exam/${token}/error`);
+    } else if (error === "expired") {
+      router.replace(`/exam/${token}/expired`);
+    }
+  }, [error, token, router]);
+
   // Group questions by tier
   const sections = useMemo(
     () => (exam ? groupByTier(exam.questions) : []),
@@ -341,16 +351,6 @@ export default function TakeExamPage() {
   /* -------------------------------------------------------------- */
   /*  Render: error → redirect to end pages                          */
   /* -------------------------------------------------------------- */
-
-  // Redirect to end pages on error (must be in useEffect, not render body)
-  useEffect(() => {
-    if (!error) return;
-    if (error === "not-found") {
-      router.replace(`/exam/${token}/error`);
-    } else if (error === "expired") {
-      router.replace(`/exam/${token}/expired`);
-    }
-  }, [error, token, router]);
 
   if (error) {
     return (
