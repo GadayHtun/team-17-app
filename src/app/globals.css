@@ -1,13 +1,43 @@
+/*
+ * App theme — dark, taken from the mockup. Single source of truth for colour;
+ * pages consume these tokens instead of hard-coding hex values.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  color-scheme: dark;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #0f0f11;
+  --foreground: #ededef;
+
+  /* surfaces */
+  --card: #1a1a1d;
+  --card-border: rgba(255, 255, 255, 0.09);
+  --row: rgba(255, 255, 255, 0.035);
+  --row-border: rgba(255, 255, 255, 0.09);
+
+  /* text */
+  --muted: rgba(255, 255, 255, 0.56);
+  --faint: rgba(255, 255, 255, 0.36);
+
+  /* controls: the blue is the selection accent (checkboxes, focus), the
+     white-on-dark pair is the primary action — see the mockup's Send invite. */
+  --accent: #3b82f6;
+  --primary-bg: #f4f4f5;
+  --primary-fg: #131316;
+
+  /* tiers */
+  --ok: #4ade80;
+  --easy-fg: #7ee2b0;
+  --easy-bg: rgba(74, 222, 128, 0.14);
+  --medium-fg: #f0c274;
+  --medium-bg: rgba(245, 179, 66, 0.14);
+  --hard-fg: #f79ab4;
+  --hard-bg: rgba(244, 114, 152, 0.14);
+
+  /* status */
+  --warn-fg: #e6bd7c;
+  --warn-bg: rgba(224, 164, 76, 0.16);
+  --err-fg: #f5a49a;
+  --err-bg: rgba(240, 119, 106, 0.16);
 }
 
 html {
@@ -42,8 +72,7 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
