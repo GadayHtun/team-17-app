@@ -96,7 +96,7 @@ export default function CreateExamPage() {
         medium: Number(form.medium),
         hard: Number(form.hard),
       };
-      const questions = await generateQuestions({
+      const response = await generateQuestions({
         jobTitle: form.jobTitle.trim(),
         jobDescription: form.jobDescription.trim(),
         counts,
@@ -104,7 +104,7 @@ export default function CreateExamPage() {
       setDraft({
         jobTitle: form.jobTitle.trim(),
         candidateEmail: form.candidateEmail.trim(),
-        questions,
+        questions: response.questions,
       });
       router.push("/review");
     } catch (err) {

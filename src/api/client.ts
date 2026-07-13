@@ -18,6 +18,14 @@ export class ApiError extends Error {
   }
 }
 
+/** LLM generation failed after retries (contracts §4: 502). */
+export class GenerationError extends ApiError {
+  constructor(message: string) {
+    super(502, message);
+    this.name = "GenerationError";
+  }
+}
+
 /**
  * Generic fetch JSON helper. Throws `ApiError` on non-2xx responses.
  * Used by pages that need ad-hoc API calls (e.g. exam fetch, submit).
