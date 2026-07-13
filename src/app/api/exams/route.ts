@@ -11,7 +11,7 @@
  */
 import { NextResponse } from "next/server";
 
-import { MARKS } from "@/shared/config";
+import { MARKS } from "@/shared/constants";
 import type { Difficulty, ExamFile, NewQuestion, Question } from "@/shared/types";
 import { createExam } from "@/storage/storage";
 

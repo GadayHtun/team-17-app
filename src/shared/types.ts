@@ -1,43 +1,47 @@
 /**
- * Executable twin of docs/contracts.md §1, §2 (contracts win if they disagree).
- *
- * P7-OWNED / ALWAYS-HUMAN-REVIEW (CLAUDE.md red line 5). Created by P5 for
- * Ticket 4 because the endpoints and storage cannot compile without the frozen
- * shapes; this file transcribes the contract verbatim and must be reviewed and
- * adopted by P7. Do not add fields or loosen types here without a contracts
- * change through P7.
+ * Contract types — frozen end of day 1.
+ * Executable twin of docs/contracts.md. If they disagree, stop and fix.
  */
 
 export type Difficulty = "easy" | "medium" | "hard";
 
-// What the LLM pipeline produces and HR reviews — no id/marks yet:
+/**
+ * What the LLM pipeline produces and HR reviews — no id/marks yet.
+ * Fields: text, options (exactly 4), answerIndex (0-3), difficulty.
+ */
 export interface NewQuestion {
   text: string;
-  options: [string, string, string, string]; // exactly 4
-  answerIndex: 0 | 1 | 2 | 3; // SERVER-SIDE ONLY, never to candidates
+  options: [string, string, string, string];
+  answerIndex: 0 | 1 | 2 | 3;
   difficulty: Difficulty;
 }
 
-// After finalize (POST /api/exams) — server assigns id and marks:
+/**
+ * After finalize (POST /api/exams) — server assigns id and marks.
+ */
 export interface Question extends NewQuestion {
-  id: string; // server-assigned, e.g. "q01"
-  marks: number; // from MARKS: easy 1, medium 2, hard 3
+  id: string;
+  marks: number;
 }
 
-// What the candidate receives (GET /api/exams/[token]) — allowlisted:
+/**
+ * What the candidate receives (GET /api/exams/[token]) — allowlisted.
+ */
 export type CandidateQuestion = Omit<Question, "answerIndex">;
 
+/**
+ * Exam file stored at data/exams/{token}.json
+ */
 export interface ExamFile {
-  token: string; // UUID v4, crypto.randomUUID()
+  token: string;
   jobTitle: string;
   candidateEmail: string;
-  createdAt: string; // ISO 8601
+  createdAt: string;
   status: "active" | "used";
-  questions: Question[]; // easy block, then medium, then hard
-  sentAt?: string; // set by send-invite (week 2)
-  // present only after submit:
+  questions: Question[];
+  sentAt?: string;
   submittedAt?: string;
-  answers?: Record<string, number>; // questionId -> chosen index (0–3)
+  answers?: Record<string, number>;
   scores?: Scores;
 }
 
@@ -46,14 +50,16 @@ export interface Scores {
   medium: { score: number; max: number };
   hard: { score: number; max: number };
   total: { score: number; max: number };
-  percentage: number; // rounded to 1 decimal
+  percentage: number;
 }
 
 export interface SubmitPayload {
-  answers: Record<string, number>; // questionId -> chosen index (0–3)
+  answers: Record<string, number>;
 }
 
-// One row of results.csv / GET /api/results, same order as contracts §5:
+/**
+ * One row of results.csv / GET /api/results
+ */
 export interface ResultRow {
   submittedAt: string;
   token: string;
