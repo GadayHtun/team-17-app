@@ -26,13 +26,21 @@ export const TESTID = {
   createExamBtn: "create-exam-btn",
   examLink: "exam-link",
 
-  // TakeExam — candidate flow (P3, src/app/take-exam/)
+  // TakeExam — candidate flow (P3, src/app/exam/[token]/)
   tierBadge: "tier-badge",
   submitBtn: "submit-btn",
+  prevBtn: "prev-btn",
+  nextBtn: "next-btn",
+  reviewBtn: "review-btn",
+  questionText: "question-text",
+  examOption: "exam-option",
+  questionNavItem: "question-nav-item",
+  refreshNotice: "refresh-notice",
 
-  // End pages (P3, src/app/end/)
+  // End pages (P3, src/app/exam/[token]/)
   successPage: "success-page",
   expiredPage: "expired-page",
+  errorPage: "error-page",
 } as const;
 
 export type TestId = (typeof TESTID)[keyof typeof TESTID];

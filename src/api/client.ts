@@ -18,6 +18,26 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * Generic fetch JSON helper. Throws `ApiError` on non-2xx responses.
+ * Used by pages that need ad-hoc API calls (e.g. exam fetch, submit).
+ */
+export async function fetchApi<T>(url: string, options?: RequestInit): Promise<T> {
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+
+  if (!res.ok) {
+    throw new ApiError(res.status, `API error: ${res.status}`);
+  }
+
+  return res.json() as Promise<T>;
+}
+
 async function post<T>(path: string, body: unknown): Promise<T> {
   const response = await fetch(path, {
     method: "POST",
