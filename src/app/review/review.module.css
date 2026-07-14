@@ -1,0 +1,373 @@
+/* Ticket 3 — review screen. Plain CSS module; no UI library (nextjs skill). */
+
+/* Colour comes from the theme tokens in globals.css — nothing hard-coded here. */
+.page {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px;
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  background: var(--card);
+}
+
+/* --- header --- */
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.title {
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--faint);
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.totalCount {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.linkBtn {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* --- tiers --- */
+
+.tier {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tierHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.easy {
+  color: var(--easy-fg);
+  background: var(--easy-bg);
+}
+
+.medium {
+  color: var(--medium-fg);
+  background: var(--medium-bg);
+}
+
+.hard {
+  color: var(--hard-fg);
+  background: var(--hard-bg);
+}
+
+.counter {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--faint);
+}
+
+/* --- question rows --- */
+
+.list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 12px 12px 14px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: var(--row);
+  transition: border-color 120ms ease, opacity 120ms ease;
+}
+
+.item:not(.itemSelected) {
+  opacity: 0.55;
+}
+
+.itemSelected {
+  border-color: var(--row-border);
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+.itemBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.questionText {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Options sit on one line and wrap — the compact HR scan view. */
+.options {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.5;
+}
+
+.optionLabel {
+  color: var(--faint);
+}
+
+/* The correct option is brightened, not recolored; the tick carries the signal. */
+.correct {
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+.tick {
+  font-size: 11px;
+  color: var(--ok);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --- buttons --- */
+
+.iconBtn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--faint);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.iconBtn:hover:not(:disabled) {
+  background: var(--row-border);
+  color: var(--foreground);
+}
+
+.iconBtn:disabled {
+  cursor: not-allowed;
+}
+
+/* Mockup's primary action: white on dark, not the blue accent. */
+.primaryBtn {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 9px;
+  background: var(--primary-bg);
+  color: var(--primary-fg);
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: opacity 120ms ease;
+}
+
+.primaryBtn:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.ghostBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border: 1px solid var(--card-border);
+  border-radius: 9px;
+  background: transparent;
+  color: var(--foreground);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.ghostBtn:hover:not(:disabled) {
+  background: var(--row);
+}
+
+.primaryBtn:disabled,
+.ghostBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+
+.spinIcon {
+  animation: spin 900ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner,
+  .spinIcon {
+    animation: none;
+  }
+}
+
+/* --- footer / link bar --- */
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--card-border);
+}
+
+.linkSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.linkRow {
+  display: flex;
+  gap: 10px;
+}
+
+/* In the link bar the button sits beside the input, so it matches its height. */
+.linkRow .primaryBtn {
+  align-self: stretch;
+}
+
+.linkInput {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--card-border);
+  border-radius: 9px;
+  background: var(--row);
+  color: var(--muted);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 12.5px;
+}
+
+.linkHint {
+  font-size: 12px;
+  color: var(--faint);
+}
+
+.warning,
+.error {
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.warning {
+  color: var(--warn-fg);
+  background: var(--warn-bg);
+}
+
+.error {
+  color: var(--err-fg);
+  background: var(--err-bg);
+}
+
+@media (max-width: 560px) {
+  .linkRow {
+    flex-wrap: wrap;
+  }
+
+  .linkInput {
+    flex-basis: 100%;
+  }
+}
