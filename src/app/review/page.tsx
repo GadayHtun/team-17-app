@@ -1,33 +1,39 @@
+"use client";
+
 /**
  * /review — Ticket 3 host page (P2).
  *
- * TEMPORARY DATA SOURCE: renders the committed fixture batch so the review UI
- * can be driven before Ticket 1 (P1, create-exam) lands. The real flow keeps the
- * draft in frontend state and passes it to <ReviewQuestions> as props — no
- * server-side drafts (contracts §7), no browser storage (nextjs skill rule 3).
- * When Ticket 1 merges, P1 renders <ReviewQuestions> from its own state and this
- * page's fixture props go away.
+ * Renders the LLM-generated batch from the in-memory draft (ExamDraftProvider),
+ * written by /create-exam (P1). No server-side draft, no browser storage
+ * (contracts §7; nextjs skill rule 3). The draft is lost on refresh/deep-link,
+ * so when it's absent we send the user back to /create-exam to regenerate (v1
+ * policy — mid-flow refresh loses progress).
  *
- * Server component: the fixture is read here and handed to the client component
- * as props. That is HR-facing, so `answerIndex` is allowed to cross (ADR 0003);
- * the candidate path uses CandidateQuestion and never touches this component.
+ * HR-facing: the draft carries `answerIndex` and that's allowed to cross here
+ * (ADR 0003). The candidate path uses CandidateQuestion and never touches this.
  */
-import type { NewQuestion } from "@/shared/types";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-import batch from "../../../fixtures/question-batch.json";
+import { useExamDraft } from "../exam-draft-context";
 import ReviewQuestions from "./ReviewQuestions";
 
-// The fixture is committed JSON: TS widens `options` to string[] and
-// `answerIndex` to number, so assert it back to the frozen contract type.
-const questions = batch.questions as NewQuestion[];
-
 export default function ReviewPage() {
+  const router = useRouter();
+  const { draft } = useExamDraft();
+
+  useEffect(() => {
+    if (!draft) router.replace("/create-exam");
+  }, [draft, router]);
+
+  if (!draft) return null;
+
   return (
     <ReviewQuestions
-      jobTitle="Frontend Developer (React)"
-      jobDescription="React + TypeScript role. 3+ years. REST APIs."
-      candidateEmail="candidate@mail.com"
-      questions={questions}
+      jobTitle={draft.jobTitle}
+      jobDescription={draft.jobDescription}
+      candidateEmail={draft.candidateEmail}
+      questions={draft.questions}
     />
   );
 }
