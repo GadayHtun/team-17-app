@@ -1,9 +1,15 @@
 import type { NewQuestion, Difficulty } from "@/shared/types";
 import { buildPrompt, buildOnePrompt } from "./prompt";
 import { validateBatch, validateOne } from "./validate";
+import { getOpenRouter } from "./openrouter";
 
 const MAX_ATTEMPTS = 3;
-const TIMEOUT_MS = 60_000;
+
+/**
+ * Free model for local development.
+ * Upgrade to paid models (e.g., openai/gpt-4o) for production.
+ */
+const DEFAULT_MODEL = "google/gemma-4-26b-a4b-it:free";
 
 interface GenerateInput {
   jobDescription: string;
@@ -44,61 +50,54 @@ function loadFixtures(): NewQuestion[] {
 }
 
 /**
- * Call the LLM API with JSON mode.
+ * Call the LLM API via OpenRouter SDK with JSON mode.
+ * Uses configurable model with free tier default for local development.
  */
 async function callLlm(prompt: string): Promise<string> {
-  const baseUrl = process.env.LLM_BASE_URL;
-  const apiKey = process.env.LLM_API_KEY;
+  const model = process.env.LLM_MODEL || DEFAULT_MODEL;
+  const openrouter = getOpenRouter();
 
-  if (!baseUrl || !apiKey) {
-    throw new Error("LLM_BASE_URL and LLM_API_KEY must be set");
+  console.log(`[LLM] Calling model: ${model}`);
+
+  const completion = await openrouter.chat.completions.create({
+    model,
+    messages: [{ role: "user", content: prompt }],
+    response_format: { type: "json_object" },
+    temperature: 0.7,
+  });
+
+  const content = completion.choices[0]?.message?.content;
+
+  if (!content) {
+    throw new Error("LLM returned empty response");
   }
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
-
-  try {
-    const response = await fetch(`${baseUrl}/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o",
-        messages: [{ role: "user", content: prompt }],
-        response_format: { type: "json_object" },
-        temperature: 0.7,
-      }),
-      signal: controller.signal,
-    });
-
-    if (!response.ok) {
-      const text = await response.text().catch(() => "unknown");
-      throw new Error(`LLM API returned ${response.status}: ${text}`);
-    }
-
-    const data = await response.json();
-    return data.choices[0].message.content;
-  } finally {
-    clearTimeout(timeout);
-  }
+  return content;
 }
 
 /**
- * Generate a batch of questions with retry and salvage logic.
+ * Serve fixture questions filtered by requested counts.
+ */
+function serveFixtures(input: GenerateInput): GenerateResult {
+  console.log("[LLM] Serving fixtures from question-batch.json");
+  const fixtures = loadFixtures();
+  const easy = fixtures.filter((q) => q.difficulty === "easy").slice(0, input.counts.easy);
+  const medium = fixtures.filter((q) => q.difficulty === "medium").slice(0, input.counts.medium);
+  const hard = fixtures.filter((q) => q.difficulty === "hard").slice(0, input.counts.hard);
+  return { ok: true, questions: [...easy, ...medium, ...hard] };
+}
+
+/**
+ * Generate a batch of questions with retry, salvage, and fallback to fixtures.
  */
 export async function generateQuestions(input: GenerateInput): Promise<GenerateResult> {
-  // MOCK_LLM mode — serve fixtures
+  // MOCK_LLM mode — always serve fixtures
   if (process.env.MOCK_LLM === "true") {
-    const fixtures = loadFixtures();
-    // Filter to match requested counts
-    const easy = fixtures.filter((q) => q.difficulty === "easy").slice(0, input.counts.easy);
-    const medium = fixtures.filter((q) => q.difficulty === "medium").slice(0, input.counts.medium);
-    const hard = fixtures.filter((q) => q.difficulty === "hard").slice(0, input.counts.hard);
-    return { ok: true, questions: [...easy, ...medium, ...hard] };
+    console.log("[LLM] MOCK_LLM=true, serving fixtures");
+    return serveFixtures(input);
   }
 
+  // Try LLM with fallback to fixtures
   const prompt = buildPrompt(input.jobDescription, input.counts);
   const allErrors: string[] = [];
   const salvaged: NewQuestion[] = [];
@@ -109,13 +108,13 @@ export async function generateQuestions(input: GenerateInput): Promise<GenerateR
       const validation = validateBatch(raw, input.counts);
 
       if (validation.ok) {
+        console.log(`[LLM] Success on attempt ${attempt}`);
         return { ok: true, questions: validation.questions };
       }
 
       allErrors.push(...validation.errors);
 
       // Salvage: collect valid questions from partial batch
-      // Re-parse to extract what we can
       try {
         let cleaned = raw.trim();
         if (cleaned.startsWith("```")) {
@@ -144,6 +143,7 @@ export async function generateQuestions(input: GenerateInput): Promise<GenerateR
         mediumCount >= input.counts.medium &&
         hardCount >= input.counts.hard
       ) {
+        console.log(`[LLM] Salvaged ${salvaged.length} valid questions`);
         return {
           ok: true,
           questions: [
@@ -156,37 +156,47 @@ export async function generateQuestions(input: GenerateInput): Promise<GenerateR
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       allErrors.push(`Attempt ${attempt}: ${msg}`);
+      console.warn(`[LLM] Attempt ${attempt} failed: ${msg}`);
     }
   }
 
-  return {
-    ok: false,
-    error: `LLM generation failed after ${MAX_ATTEMPTS} attempts: ${allErrors.join("; ")}`,
-  };
+  // All LLM attempts failed — fallback to fixtures
+  console.warn(`[LLM] All ${MAX_ATTEMPTS} attempts failed, falling back to fixtures`);
+  return serveFixtures(input);
 }
 
 /**
- * Generate a single question with retry logic.
+ * Serve a single fixture question with fallback logic.
+ */
+function serveOneFixture(input: GenerateOneInput): GenerateOneResult {
+  console.log("[LLM] Serving single fixture from question-batch.json");
+  const fixtures = loadFixtures();
+  const matching = fixtures.find(
+    (q) => q.difficulty === input.difficulty && !input.excludeTexts.includes(q.text)
+  );
+  if (matching) {
+    return { ok: true, question: matching };
+  }
+  // Fallback: return any question matching difficulty
+  const any = fixtures.find((q) => q.difficulty === input.difficulty);
+  if (any) {
+    return { ok: true, question: any };
+  }
+  // Last resort: return first fixture
+  return { ok: true, question: fixtures[0] };
+}
+
+/**
+ * Generate a single question with retry and fallback to fixtures.
  */
 export async function generateOne(input: GenerateOneInput): Promise<GenerateOneResult> {
-  // MOCK_LLM mode — serve from fixtures
+  // MOCK_LLM mode — always serve fixtures
   if (process.env.MOCK_LLM === "true") {
-    const fixtures = loadFixtures();
-    const matching = fixtures.find(
-      (q) => q.difficulty === input.difficulty && !input.excludeTexts.includes(q.text)
-    );
-    if (matching) {
-      return { ok: true, question: matching };
-    }
-    // Fallback: return any question matching difficulty
-    const any = fixtures.find((q) => q.difficulty === input.difficulty);
-    if (any) {
-      return { ok: true, question: any };
-    }
-    // Last resort: return first fixture
-    return { ok: true, question: fixtures[0] };
+    console.log("[LLM] MOCK_LLM=true, serving single fixture");
+    return serveOneFixture(input);
   }
 
+  // Try LLM with fallback to fixtures
   const prompt = buildOnePrompt(input.jobDescription, input.difficulty, input.excludeTexts);
   const allErrors: string[] = [];
 
@@ -196,6 +206,7 @@ export async function generateOne(input: GenerateOneInput): Promise<GenerateOneR
       const validation = validateOne(JSON.parse(raw).questions?.[0] ?? raw);
 
       if (validation.ok) {
+        console.log(`[LLM] Single question success on attempt ${attempt}`);
         return { ok: true, question: validation.questions[0] };
       }
 
@@ -203,11 +214,11 @@ export async function generateOne(input: GenerateOneInput): Promise<GenerateOneR
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       allErrors.push(`Attempt ${attempt}: ${msg}`);
+      console.warn(`[LLM] Single question attempt ${attempt} failed: ${msg}`);
     }
   }
 
-  return {
-    ok: false,
-    error: `LLM generation failed after ${MAX_ATTEMPTS} attempts: ${allErrors.join("; ")}`,
-  };
+  // All LLM attempts failed — fallback to fixtures
+  console.warn(`[LLM] All ${MAX_ATTEMPTS} attempts failed for single question, falling back to fixtures`);
+  return serveOneFixture(input);
 }

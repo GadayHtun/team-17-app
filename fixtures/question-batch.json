@@ -1,75 +1,333 @@
 {
   "questions": [
     {
-      "text": "Which hook is used to manage local state in a React function component?",
-      "options": ["useEffect", "useState", "useRef", "useMemo"],
+      "text": "Which keyword is used in JavaScript to declare a variable that cannot be reassigned?",
+      "options": [
+        "var",
+        "let",
+        "const",
+        "static"
+      ],
+      "answerIndex": 2,
+      "difficulty": "easy"
+    },
+    {
+      "text": "In React, what is the primary purpose of the useState hook?",
+      "options": [
+        "To manage side effects",
+        "To add state to functional components",
+        "To navigate between routes",
+        "To fetch data from an API"
+      ],
       "answerIndex": 1,
       "difficulty": "easy"
     },
     {
-      "text": "What does JSX stand for in React?",
-      "options": ["JavaScript XML", "Java Syntax Extension", "JSON XML", "JavaScript Extension"],
+      "text": "Which of the following is a common way to define a type for an object in TypeScript?",
+      "options": [
+        "interface",
+        "function",
+        "class",
+        "import"
+      ],
       "answerIndex": 0,
       "difficulty": "easy"
     },
     {
-      "text": "Which HTTP method is idempotent by definition?",
-      "options": ["POST", "PUT", "PATCH", "DELETE"],
+      "text": "Which HTTP method is typically used to create a new resource on a server?",
+      "options": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
       "answerIndex": 1,
       "difficulty": "easy"
     },
     {
-      "text": "What is the default port for PostgreSQL?",
-      "options": ["3306", "5432", "27017", "6379"],
-      "answerIndex": 1,
+      "text": "What does the 'async' keyword do when placed before a function in JavaScript?",
+      "options": [
+        "It makes the function run in a separate thread",
+        "It prevents the function from being called twice",
+        "It ensures the function always returns a Promise",
+        "It stops the execution of the script until the function finishes"
+      ],
+      "answerIndex": 2,
       "difficulty": "easy"
     },
     {
-      "text": "Why would you pass a dependency array to useEffect?",
-      "options": ["To control when the effect re-runs", "To style the component", "To register a route", "To enforce type safety"],
-      "answerIndex": 0,
-      "difficulty": "medium"
-    },
-    {
-      "text": "What is the purpose of Next.js middleware?",
-      "options": ["To run code before a request is completed", "To style components", "To define database schemas", "To manage CLI commands"],
-      "answerIndex": 0,
-      "difficulty": "medium"
-    },
-    {
-      "text": "When would you use a REST API over GraphQL?",
-      "options": ["When the client needs flexible field selection", "When the resource graph is simple and caching via HTTP is desired", "When real-time subscriptions are required", "When the schema changes frequently"],
-      "answerIndex": 1,
-      "difficulty": "medium"
-    },
-    {
-      "text": "What is a Docker multi-stage build primarily used for?",
-      "options": ["Running multiple containers", "Reducing final image size by separating build and runtime", "Orchestrating multiple services", "Load balancing traffic"],
-      "answerIndex": 1,
-      "difficulty": "medium"
-    },
-    {
-      "text": "Which pattern avoids stale closures inside setInterval in React?",
-      "options": ["Wrapping in useMemo", "Using Context", "Rendering through a Portal", "Storing the latest value in a ref"],
+      "text": "In Node.js, what is the name of the built-in module used to handle file system operations?",
+      "options": [
+        "path",
+        "http",
+        "os",
+        "fs"
+      ],
       "answerIndex": 3,
+      "difficulty": "easy"
+    },
+    {
+      "text": "Which of the following is a standard format for exchanging data between a client and a server?",
+      "options": [
+        "JSON",
+        "HTML",
+        "CSS",
+        "SQL"
+      ],
+      "answerIndex": 0,
+      "difficulty": "easy"
+    },
+    {
+      "text": "In React, what is the purpose of the 'key' prop when rendering lists?",
+      "options": [
+        "To style individual list items",
+        "To identify which items have changed, been added, or removed",
+        "To link the list to a specific database record",
+        "To prevent the list from re-rendering"
+      ],
+      "answerIndex": 1,
+      "difficulty": "easy"
+    },
+    {
+      "text": "Which command is commonly used to install new packages in a Node.js project using npm?",
+      "options": [
+        "npm start",
+        "npm update",
+        "npm install",
+        "npm run"
+      ],
+      "answerIndex": 2,
+      "difficulty": "easy"
+    },
+    {
+      "text": "What does TypeScript add to JavaScript?",
+      "options": [
+        "New runtime behaviors",
+        "Static type checking",
+        "A new way to handle asynchronous code",
+        "A built-in web server"
+      ],
+      "answerIndex": 1,
+      "difficulty": "easy"
+    },
+    {
+      "text": "In a React component, what is the primary consequence of using a non-memoized function as a prop passed to a child component wrapped in React.memo?",
+      "options": [
+        "The child component will fail to render correctly.",
+        "The child component will re-render on every parent re-render despite no prop changes.",
+        "The application will throw a 'useMemo' error in the console.",
+        "The child component will be hoisted to the top-level scope."
+      ],
+      "answerIndex": 1,
+      "difficulty": "medium"
+    },
+    {
+      "text": "A Node.js application is experiencing high CPU usage during a large JSON parsing operation. How should this be handled to prevent blocking the Event Loop?",
+      "options": [
+        "Wrap the parsing logic in an async/await block.",
+        "Use a Web Worker to handle the parsing.",
+        "Move the parsing logic to a Worker Thread or a child process.",
+        "Increase the memory limit using the --max-old-space-size flag."
+      ],
+      "answerIndex": 2,
+      "difficulty": "medium"
+    },
+    {
+      "text": "You are implementing a TypeScript interface for a user object where the 'iddleName' property is optional but the 'lastName' is required. Which syntax is correct?",
+      "options": [
+        "interface User { middleName?: string; lastName: string; }",
+        "interface User { middleName: string | undefined; lastName: string; }",
+        "interface User { middleName: string | null; lastName: string; }",
+        "interface User { middleName?: string | null; lastName: string; }"
+      ],
+      "answerIndex": 0,
+      "difficulty": "medium"
+    },
+    {
+      "text": "In an Express.js application, what happens if an error is thrown inside an asynchronous middleware function without being passed to 'next()'?",
+      "options": [
+        "The error is automatically caught by the global error handler.",
+        "The server will automatically restart.",
+        "The request will hang until a timeout occurs.",
+        "The process will crash immediately."
+      ],
+      "answerIndex": 2,
+      "difficulty": "medium"
+    },
+    {
+      "text": "When using React's useEffect hook, what is the result of providing an empty dependency array []?",
+      "options": [
+        "The effect runs on every single re-render.",
+        "The effect runs only once after the initial mount.",
+        "The effect runs only when the component unmounts.",
+        "The effect runs only when the component's state changes."
+      ],
+      "answerIndex": 1,
+      "difficulty": "medium"
+    },
+    {
+      "text": "You need to optimize a database query in a Node.js application that retrieves 10,000 records. Which approach is most efficient for memory management?",
+      "options": [
+        "Fetch all records at once and filter them in JavaScript.",
+        "Use a database cursor or stream the results in chunks.",
+        "Increase the heap size of the Node.js process.",
+        "Use Promise.all() to fetch all records in parallel."
+      ],
+      "answerIndex": 1,
+      "difficulty": "medium"
+    },
+    {
+      "text": "In TypeScript, what is the difference between 'unknown' and 'any'?",
+      "options": [
+        "There is no difference; they are aliases.",
+        "'unknown' is more restrictive because it requires type checking before operations.",
+        "'any' is more restrictive because it prevents all property access.",
+        "'unknown' can only be used with interfaces."
+      ],
+      "answerIndex": 1,
+      "difficulty": "medium"
+    },
+    {
+      "text": "A React application is suffering from 'Prop Drilling'. Which of the following is the most appropriate solution for global state management?",
+      "options": [
+        "Using Redux or the Context API.",
+        "Passing props through intermediate components.",
+        "Using local state in the root component.",
+        "Moving all logic to a Node.js backend."
+      ],
+      "answerIndex": 0,
+      "difficulty": "medium"
+    },
+    {
+      "text": "In a RESTful API design, which HTTP method should be used to update a resource by replacing the entire existing resource with new data?",
+      "options": [
+        "PATCH",
+        "POST",
+        "PUT",
+        "UPDATE"
+      ],
+      "answerIndex": 2,
+      "difficulty": "medium"
+    },
+    {
+      "text": "What is the primary purpose of using a 'Key' prop when rendering a list of elements in React?",
+      "options": [
+        "To uniquely identify elements for CSS styling purposes.",
+        "To help React identify which items have changed, been added, or been removed.",
+        "To prevent the application from crashing during re-renders.",
+        "To assign a unique ID to the component's state."
+      ],
+      "answerIndex": 1,
+      "difficulty": "medium"
+    },
+    {
+      "text": "In a high-concurrency Node.js environment, how would you prevent 'Event Loop Lag' when processing a CPU-intensive cryptographic operation?",
+      "options": [
+        "Use Worker Threads to offload the computation to a separate thread.",
+        "Wrap the synchronous function in a Promise.resolve().then() call.",
+        "Increase the maxOldSpaceSize memory limit of the V8 engine.",
+        "Use setImmediate() to break the operation into smaller chunks."
+      ],
+      "answerIndex": 0,
       "difficulty": "hard"
     },
     {
-      "text": "What problem does React Server Components solve that SSR alone does not?",
-      "options": ["Faster page loads", "Eliminating client-side JavaScript for non-interactive components", "Better SEO", "Hot module replacement"],
-      "answerIndex": 1,
+      "text": "When designing a React application with deep component trees, how do you minimize unnecessary re-renders caused by context provider updates?",
+      "options": [
+        "Wrap the provider's value in useMemo and split the context into smaller, specialized providers.",
+        "Use React.memo on every single component within the provider's tree.",
+        "Use a global state management library like Redux instead of Context API.",
+        "Pass the context value through props instead of using the useContext hook."
+      ],
+      "answerIndex": 0,
       "difficulty": "hard"
     },
     {
-      "text": "In a distributed system, what does the CAP theorem say about a partition-tolerant system?",
-      "options": ["It can be both consistent and available", "It must sacrifice either consistency or availability", "It cannot have a database", "It must use eventual consistency"],
-      "answerIndex": 1,
+      "text": "In TypeScript, when implementing a generic repository pattern, how do you ensure that a method can only be called with types that satisfy a specific interface constraint?",
+      "options": [
+        "By using the 'extends' keyword in the generic type declaration.",
+        "By using the 'implements' keyword on the class itself.",
+        "By using the 'atisfies' operator on the method return type.",
+        "By using a type guard function within the method body."
+      ],
+      "answerIndex": 0,
       "difficulty": "hard"
     },
     {
-      "text": "What is the key trade-off of using eventual consistency over strong consistency?",
-      "options": ["Simpler code", "Higher availability and performance at the cost of temporary stale reads", "Stronger data integrity", "Easier debugging"],
-      "answerIndex": 1,
+      "text": "Consider a distributed system using Node.js. How would you handle the 'Thundering Herd' problem when a high-traffic cache key expires?",
+      "options": [
+        "By implementing a probabilistic early recomputation (PER) or using a mutex/lock on the cache miss.",
+        "By increasing the TTL (Time To Live) of the cache key dynamically.",
+        "By using a distributed pub/sub mechanism to notify all instances.",
+        "By implementing a circuit breaker pattern around the database connection."
+      ],
+      "answerIndex": 0,
+      "difficulty": "hard"
+    },
+    {
+      "text": "While debugging a memory leak in a long-running Node.js process, you notice the heap usage increases steadily. What is the most likely cause if the heap dump shows many objects tied to a 'etTimeout'?",
+      "options": [
+        "Closures within the setTimeout callback capturing large variables in the outer scope.",
+        "The Event Loop being blocked by synchronous I/O operations.",
+        "The V8 garbage collector being unable to perform a full sweep.",
+        "Too many active file descriptors being opened by the process."
+      ],
+      "answerIndex": 0,
+      "difficulty": "hard"
+    },
+    {
+      "text": "When optimizing a React application's performance, what is the primary risk of over-using 'useCallback' for every function definition?",
+      "options": [
+        "Increased memory overhead and CPU cost of dependency array comparisons.",
+        "It causes the component to skip the reconciliation phase entirely.",
+        "It prevents the garbage collector from cleaning up stale closures.",
+        "It triggers an infinite loop if used inside a useEffect hook."
+      ],
+      "answerIndex": 0,
+      "difficulty": "hard"
+    },
+    {
+      "text": "In a TypeScript codebase, what is the architectural implication of using 'any' instead of 'unknown' when handling API responses?",
+      "options": [
+        "'any' disables type checking entirely, while 'unknown' forces type narrowing before access.",
+        "'any' is more performant at runtime than 'unknown'.",
+        "'unknown' is a subtype of 'any', making it more restrictive.",
+        "There is no architectural difference; it is purely a matter of linting preference."
+      ],
+      "answerIndex": 0,
+      "difficulty": "hard"
+    },
+    {
+      "text": "You are experiencing a race condition in a React component where an API call returns after the component has unmounted. What is the most modern and robust way to handle this?",
+      "options": [
+        "Using an AbortController to signal the fetch request to cancel.",
+        "Using a boolean flag (isMounted) inside a useEffect cleanup function.",
+        "Wrapping the state update in a try-catch block to ignore errors.",
+        "Using a global loading state to prevent further user interaction."
+      ],
+      "answerIndex": 0,
+      "difficulty": "hard"
+    },
+    {
+      "text": "When scaling a Node.js API, why might using a 'Cluster' module be less effective than using a container orchestrator like Kubernetes?",
+      "options": [
+        "Cluster only scales vertically on a single machine, whereas Kubernetes scales horizontally across nodes.",
+        "Cluster is limited to a single CPU core regardless of the machine size.",
+        "The Cluster module is deprecated in recent versions of Node.js.",
+        "Kubernetes handles asynchronous I/O much more efficiently than Node.js."
+      ],
+      "answerIndex": 0,
+      "difficulty": "hard"
+    },
+    {
+      "text": "In a SQL database used by a Node.js application, how does 'Transaction Isolation Level' affect performance and data integrity?",
+      "options": [
+        "Higher isolation levels increase data integrity but decrease concurrency and performance.",
+        "Lower isolation levels increase performance but guarantee no race conditions.",
+        "Isolation levels have no impact on performance, only on data visibility.",
+        "The 'Read Uncommitted' level is the most performant and safest for all transactions."
+      ],
+      "answerIndex": 0,
       "difficulty": "hard"
     }
   ]
