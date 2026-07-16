@@ -128,15 +128,22 @@ export default function CreateExamPage() {
         <label className={styles.label} htmlFor="job-title">
           Job title
         </label>
-        <input
+        <select
           id="job-title"
           data-testid={TESTID.jobTitleInput}
           className={styles.input}
-          type="text"
           value={form.jobTitle}
           onChange={(e) => updateField("jobTitle", e.target.value)}
           disabled={isLoading}
-        />
+        >
+          <option value="" disabled>
+            Select a job title
+          </option>
+          <option value="Front End Developer React">Front End Developer React</option>
+          <option value="Back End Developer API">Back End Developer API</option>
+          <option value="Mobile Developer">Mobile Developer</option>
+          <option value="DevOps Engineer">DevOps Engineer</option>
+        </select>
         {errors.jobTitle && <p className={styles.error}>{errors.jobTitle}</p>}
 
         <label className={styles.label} htmlFor="job-description">
