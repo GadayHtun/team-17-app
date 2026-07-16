@@ -3,7 +3,7 @@ services:
     name: exam-platform
     runtime: node
     plan: free
-    buildCommand: npm install && npm run build
+    buildCommand: NODE_OPTIONS="--max-old-space-size=512" npm install && NODE_OPTIONS="--max-old-space-size=512" npm run build
     startCommand: npm start
     healthCheckPath: /
     envVars:
