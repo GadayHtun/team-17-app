@@ -17,6 +17,7 @@ import type { NewQuestion } from "@/shared/types";
 
 export interface ExamDraft {
   jobTitle: string;
+  jobDescription: string;
   candidateEmail: string;
   questions: NewQuestion[];
 }

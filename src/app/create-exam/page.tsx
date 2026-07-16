@@ -103,6 +103,7 @@ export default function CreateExamPage() {
       });
       setDraft({
         jobTitle: form.jobTitle.trim(),
+        jobDescription: form.jobDescription.trim(),
         candidateEmail: form.candidateEmail.trim(),
         questions,
       });
