@@ -22,4 +22,5 @@ services:
       - key: APP_URL
         fromService:
           name: exam-platform
+          type: web
           property: host
