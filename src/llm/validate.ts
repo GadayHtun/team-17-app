@@ -31,8 +31,11 @@ export type ValidationResult = ValidResult | InvalidResult;
 /**
  * Strip markdown fences and parse JSON.
  * Layer 1: Parse
+ *
+ * Exported so every LLM response goes through the same fence-tolerant parse —
+ * a model that fences its output must not fail one call path but not another.
  */
-function stripAndParse(raw: string): { parsed: unknown } | { error: string } {
+export function stripAndParse(raw: string): { parsed: unknown } | { error: string } {
   let cleaned = raw.trim();
 
   // Strip markdown fences: ```json ... ``` or ``` ... ```
