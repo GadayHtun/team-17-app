@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import styles from "./SplashScreen.module.css";
 
 export default function SplashScreen() {
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return !sessionStorage.getItem("splash-seen");
+  });
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
-    // Skip splash if already shown this session
-    if (sessionStorage.getItem("splash-seen")) {
-      setVisible(false);
+    if (!visible) {
       return;
     }
 
@@ -25,7 +26,7 @@ export default function SplashScreen() {
       clearTimeout(fadeTimer);
       clearTimeout(hideTimer);
     };
-  }, []);
+  }, [visible]);
 
   if (!visible) return null;
 
