@@ -153,3 +153,25 @@ export async function appendResult(row: ResultRow): Promise<void> {
   const csv = stringify([row], { header, columns: RESULT_COLUMNS });
   await appendFile(target, csv, "utf8");
 }
+
+/** Save an exam draft (for persisting generated questions across page refreshes). */
+export async function saveExamDraft(draft: {
+  jobTitle: string;
+  jobDescription: string;
+  candidateEmail: string;
+  questions: NewQuestion[];
+  counts: { easy: number; medium: number; hard: number };
+  model: string;
+  createdAt: Date;
+}): Promise<string> {
+  if (useMongoDB()) {
+    const { saveExamDraft: mongoSave } = await getMongoAdapter();
+    return mongoSave(draft);
+  }
+  // Filesystem mode: save draft to data/drafts/{draftId}.json
+  const draftId = crypto.randomUUID();
+  const draftsDir = path.join(dataRoot(), "drafts");
+  await mkdir(draftsDir, { recursive: true });
+  await writeFile(path.join(draftsDir, `${draftId}.json`), JSON.stringify(draft, null, 2), "utf8");
+  return draftId;
+}

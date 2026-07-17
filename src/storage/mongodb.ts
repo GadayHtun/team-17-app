@@ -4,7 +4,7 @@
  */
 import { MongoClient, type Db } from "mongodb";
 
-import type { ExamFile, ResultRow } from "@/shared/types";
+import type { ExamFile, ResultRow, NewQuestion } from "@/shared/types";
 
 const UUID_V4 =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -86,4 +86,19 @@ export async function saveExam(exam: ExamFile): Promise<void> {
 export async function appendResult(row: ResultRow): Promise<void> {
   const db = await getDb();
   await db.collection("results").insertOne(row);
+}
+
+export async function saveExamDraft(draft: {
+  jobTitle: string;
+  jobDescription: string;
+  candidateEmail: string;
+  questions: NewQuestion[];
+  counts: { easy: number; medium: number; hard: number };
+  model: string;
+  createdAt: Date;
+}): Promise<string> {
+  const db = await getDb();
+  const draftId = crypto.randomUUID();
+  await db.collection("examDrafts").insertOne({ draftId, ...draft });
+  return draftId;
 }
