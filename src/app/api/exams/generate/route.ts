@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateQuestions } from "@/llm/generate";
 
+// SECURITY (#14): bound per-request LLM cost (denial-of-wallet). Never trust the
+// client's own limit — the frontend caps each tier at 20; enforce it here too.
+const MAX_PER_TIER = 20;
+
 /**
  * POST /api/exams/generate
  * Body: { jobTitle, jobDescription, counts: { easy, medium, hard } }
@@ -34,6 +38,17 @@ export async function POST(request: NextRequest) {
     ) {
       return NextResponse.json(
         { error: "Counts must be non-negative integers" },
+        { status: 400 }
+      );
+    }
+
+    if (
+      body.counts.easy > MAX_PER_TIER ||
+      body.counts.medium > MAX_PER_TIER ||
+      body.counts.hard > MAX_PER_TIER
+    ) {
+      return NextResponse.json(
+        { error: `Each count must be at most ${MAX_PER_TIER}` },
         { status: 400 }
       );
     }
