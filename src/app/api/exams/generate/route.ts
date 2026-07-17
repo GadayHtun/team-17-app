@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateQuestions } from "@/llm/generate";
+import { saveExamDraft } from "@/storage/storage";
 
 /**
  * POST /api/exams/generate
- * Body: { jobTitle, jobDescription, counts: { easy, medium, hard } }
- * Response: { questions: NewQuestion[] }
+ * Body: { jobTitle, jobDescription, candidateEmail, counts: { easy, medium, hard } }
+ * Response: { questions: NewQuestion[], draftId: string }
+ *
+ * Generated questions are stored in MongoDB (examDrafts collection)
+ * so they persist across page refreshes.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -55,7 +59,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: result.error }, { status: 502 });
     }
 
-    return NextResponse.json({ questions: result.questions });
+    // Store the draft in MongoDB
+    const draftId = await saveExamDraft({
+      jobTitle: body.jobTitle || "",
+      jobDescription: body.jobDescription,
+      candidateEmail: body.candidateEmail || "",
+      questions: result.questions,
+      counts: body.counts,
+      model: process.env.LLM_MODEL || "unknown",
+      createdAt: new Date(),
+    });
+
+    console.log(`[Generate] Saved draft ${draftId} with ${result.questions.length} questions`);
+
+    return NextResponse.json({
+      questions: result.questions,
+      draftId,
+    });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json({ error: msg }, { status: 500 });

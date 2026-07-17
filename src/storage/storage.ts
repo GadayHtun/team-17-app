@@ -1,7 +1,8 @@
 /**
- * Storage module — the ONLY file in the codebase that touches the filesystem
+ * Storage module — the ONLY place in the codebase that touches persistence
  * (CLAUDE.md hard rule 1). Everything persists through the functions here.
  *
+
  * Layout (filesystem mode):
  *   data/exams/{token}.json   one ExamFile per exam (source of truth)
  *   data/results.csv          append-only report (regenerable)
@@ -9,18 +10,13 @@
  * DATA_DIR overrides the root (tests point it at a temp dir); defaults to "data".
  *
  * When MONGODB_URI is set (Vercel production), uses MongoDB instead of filesystem.
- */
+
 import "server-only";
 
-import { mkdir, readFile, rename, writeFile, access, appendFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
-import path from "node:path";
-import { stringify } from "csv-stringify/sync";
+import { getDb } from "./mongodb";
+import type { ExamFile, ResultRow, NewQuestion } from "@/shared/types";
 
-import type { ExamFile, ResultRow } from "@/shared/types";
-
-// UUID v4 — the only token shape we ever accept. Validate BEFORE building a path
-// (path-traversal protection, CLAUDE.md red line 2 / hard rule 3).
+// UUID v4 — the only token shape we ever accept.
 const UUID_V4 =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -82,6 +78,7 @@ export async function examExists(token: string): Promise<boolean> {
   } catch {
     return false;
   }
+
 }
 
 /** Persist a brand-new exam. Refuses to clobber an existing token. */
@@ -93,10 +90,11 @@ export async function createExam(exam: ExamFile): Promise<void> {
   if (await examExists(exam.token)) {
     throw new Error(`exam already exists: ${exam.token}`);
   }
-  await atomicWriteJson(examPath(exam.token), exam);
+  const db = await getDb();
+  await db.collection("exams").insertOne(exam);
 }
 
-/** Load an exam, or null if the token is invalid or no file exists. */
+/** Load an exam, or null if the token is invalid or no document exists. */
 export async function loadExam(token: string): Promise<ExamFile | null> {
   if (!isValidToken(token)) return null;
   if (useMongoDB()) {
@@ -109,36 +107,23 @@ export async function loadExam(token: string): Promise<ExamFile | null> {
   } catch {
     return null;
   }
+
 }
 
-/** Overwrite an existing exam atomically (e.g. after submit). */
+/** Overwrite an existing exam (e.g. after submit). */
 export async function saveExam(exam: ExamFile): Promise<void> {
+
   if (useMongoDB()) {
     const { saveExam: mongoSave } = await getMongoAdapter();
     return mongoSave(exam);
   }
   await atomicWriteJson(examPath(exam.token), exam);
+
 }
 
-// results.csv column order is FROZEN by contracts §5.
-const RESULT_COLUMNS: (keyof ResultRow)[] = [
-  "submittedAt",
-  "token",
-  "candidateEmail",
-  "jobTitle",
-  "easyScore",
-  "easyMax",
-  "mediumScore",
-  "mediumMax",
-  "hardScore",
-  "hardMax",
-  "totalScore",
-  "totalMax",
-  "percentage",
-];
-
-/** Append one graded result. Writes the header row on first creation. */
+/** Append one graded result. */
 export async function appendResult(row: ResultRow): Promise<void> {
+
   if (useMongoDB()) {
     const { appendResult: mongoAppend } = await getMongoAdapter();
     return mongoAppend(row);
