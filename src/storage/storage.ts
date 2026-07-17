@@ -13,7 +13,11 @@
 */
 import "server-only";
 
-import { getDb } from "./mongodb";
+import { mkdir, readFile, rename, writeFile, access, appendFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { stringify } from "csv-stringify/sync";
+
 import type { ExamFile, ResultRow, NewQuestion } from "@/shared/types";
 
 // UUID v4 — the only token shape we ever accept.
@@ -90,8 +94,7 @@ export async function createExam(exam: ExamFile): Promise<void> {
   if (await examExists(exam.token)) {
     throw new Error(`exam already exists: ${exam.token}`);
   }
-  const db = await getDb();
-  await db.collection("exams").insertOne(exam);
+  await atomicWriteJson(examPath(exam.token), exam);
 }
 
 /** Load an exam, or null if the token is invalid or no document exists. */
@@ -120,6 +123,22 @@ export async function saveExam(exam: ExamFile): Promise<void> {
   await atomicWriteJson(examPath(exam.token), exam);
 
 }
+
+const RESULT_COLUMNS: (keyof ResultRow)[] = [
+  "submittedAt",
+  "token",
+  "candidateEmail",
+  "jobTitle",
+  "easyScore",
+  "easyMax",
+  "mediumScore",
+  "mediumMax",
+  "hardScore",
+  "hardMax",
+  "totalScore",
+  "totalMax",
+  "percentage",
+];
 
 /** Append one graded result. */
 export async function appendResult(row: ResultRow): Promise<void> {
