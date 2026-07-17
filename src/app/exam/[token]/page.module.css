@@ -1,0 +1,125 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  background: #1a1a1a;
+  padding: 32px 16px;
+  box-sizing: border-box;
+}
+
+.card {
+  max-width: 640px;
+  width: 100%;
+  background: #2a2a2a;
+  border-radius: 16px;
+  padding: 32px;
+  box-sizing: border-box;
+}
+
+.progressRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 8px;
+}
+
+.navRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  gap: 12px;
+}
+
+/* Tablet */
+@media (max-width: 640px) {
+  .page {
+    padding: 16px 12px;
+  }
+
+  .card {
+    padding: 20px;
+    border-radius: 12px;
+  }
+
+  .progressRow {
+    flex-wrap: wrap;
+  }
+
+  .navRow {
+    gap: 8px;
+  }
+
+  .questionText {
+    font-size: 16px;
+  }
+
+  .option {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 400px) {
+  .page {
+    padding: 12px 8px;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 10px;
+  }
+
+  .navRow {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .navRow button {
+    width: 100%;
+  }
+
+  .questionText {
+    font-size: 15px;
+  }
+
+  .option {
+    padding: 12px;
+    font-size: 13px;
+    gap: 10px;
+  }
+}
+
+/* Base styles */
+.questionText {
+  font-size: 18px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  border: 1px solid #404040;
+  background: #333333;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  font-size: 15px;
+  color: #e0e0e0;
+  text-align: left;
+}
+
+.option:hover {
+  background: #3a3a3a;
+}
