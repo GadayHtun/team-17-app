@@ -2,14 +2,15 @@
  * Storage module — the ONLY place in the codebase that touches persistence
  * (CLAUDE.md hard rule 1). Everything persists through the functions here.
  *
- * backed by MongoDB Atlas:
- *   exams collection    — one document per ExamFile (source of truth)
- *   results collection  — one document per ResultRow (append-only report)
- *   examDrafts collection — LLM-generated question drafts
+
+ * Layout (filesystem mode):
+ *   data/exams/{token}.json   one ExamFile per exam (source of truth)
+ *   data/results.csv          append-only report (regenerable)
  *
- * MONGODB_URI overrides the connection (tests point it at a test db);
- * defaults to env var.
- */
+ * DATA_DIR overrides the root (tests point it at a temp dir); defaults to "data".
+ *
+ * When MONGODB_URI is set (Vercel production), uses MongoDB instead of filesystem.
+*/
 import "server-only";
 
 import { getDb } from "./mongodb";
@@ -23,15 +24,69 @@ export function isValidToken(token: string): boolean {
   return typeof token === "string" && UUID_V4.test(token);
 }
 
+// Check if MongoDB is configured (Vercel production)
+function useMongoDB(): boolean {
+  return !!process.env.MONGODB_URI;
+}
+
+// Lazy-load MongoDB adapter only when needed
+async function getMongoAdapter() {
+  const mod = await import("./mongodb");
+  return mod;
+}
+
+function dataRoot(): string {
+  return process.env.DATA_DIR || "data";
+}
+
+function examsDir(): string {
+  return path.join(dataRoot(), "exams");
+}
+
+// Never call without validating `token` via isValidToken first.
+function examPath(token: string): string {
+  return path.join(examsDir(), `${token}.json`);
+}
+
+function resultsPath(): string {
+  return path.join(dataRoot(), "results.csv");
+}
+
+// Atomic write: serialize to a temp file, fsync-by-rename over the target. A
+// crash mid-write leaves either the old file or nothing — never a partial JSON
+// (CLAUDE.md hard rule 2).
+async function atomicWriteJson(target: string, data: unknown): Promise<void> {
+  await mkdir(path.dirname(target), { recursive: true });
+  const tmp = `${target}.${process.pid}.${randomSuffix()}.tmp`;
+  await writeFile(tmp, JSON.stringify(data, null, 2), "utf8");
+  await rename(tmp, target);
+}
+
+function randomSuffix(): string {
+  return crypto.randomUUID().slice(0, 8);
+}
+
 export async function examExists(token: string): Promise<boolean> {
   if (!isValidToken(token)) return false;
-  const db = await getDb();
-  const doc = await db.collection("exams").findOne({ token }, { projection: { _id: 1 } });
-  return doc !== null;
+  if (useMongoDB()) {
+    const { examExists: mongoExists } = await getMongoAdapter();
+    return mongoExists(token);
+  }
+  try {
+    await access(examPath(token));
+    return true;
+  } catch {
+    return false;
+  }
+
 }
 
 /** Persist a brand-new exam. Refuses to clobber an existing token. */
 export async function createExam(exam: ExamFile): Promise<void> {
+  if (useMongoDB()) {
+    const { createExam: mongoCreate } = await getMongoAdapter();
+    return mongoCreate(exam);
+  }
   if (await examExists(exam.token)) {
     throw new Error(`exam already exists: ${exam.token}`);
   }
@@ -42,47 +97,40 @@ export async function createExam(exam: ExamFile): Promise<void> {
 /** Load an exam, or null if the token is invalid or no document exists. */
 export async function loadExam(token: string): Promise<ExamFile | null> {
   if (!isValidToken(token)) return null;
-  const db = await getDb();
-  const doc = await db.collection<ExamFile>("exams").findOne({ token });
-  return doc ?? null;
+  if (useMongoDB()) {
+    const { loadExam: mongoLoad } = await getMongoAdapter();
+    return mongoLoad(token);
+  }
+  try {
+    const raw = await readFile(examPath(token), "utf8");
+    return JSON.parse(raw) as ExamFile;
+  } catch {
+    return null;
+  }
+
 }
 
 /** Overwrite an existing exam (e.g. after submit). */
 export async function saveExam(exam: ExamFile): Promise<void> {
-  const db = await getDb();
-  await db.collection("exams").updateOne({ token: exam.token }, { $set: exam });
+
+  if (useMongoDB()) {
+    const { saveExam: mongoSave } = await getMongoAdapter();
+    return mongoSave(exam);
+  }
+  await atomicWriteJson(examPath(exam.token), exam);
+
 }
 
 /** Append one graded result. */
 export async function appendResult(row: ResultRow): Promise<void> {
-  const db = await getDb();
-  await db.collection("results").insertOne(row);
-}
 
-// ── Exam Drafts (LLM-generated questions before HR review) ──────────────
-
-export interface ExamDraft {
-  _id?: import("mongodb").ObjectId;
-  jobTitle: string;
-  jobDescription: string;
-  candidateEmail: string;
-  questions: NewQuestion[];
-  counts: { easy: number; medium: number; hard: number };
-  model: string;
-  createdAt: Date;
-}
-
-/** Save an LLM-generated question draft to MongoDB. */
-export async function saveExamDraft(draft: ExamDraft): Promise<string> {
-  const db = await getDb();
-  const result = await db.collection("examDrafts").insertOne(draft);
-  return result.insertedId.toHexString();
-}
-
-/** Load an exam draft by its ObjectId. */
-export async function loadExamDraft(id: string): Promise<ExamDraft | null> {
-  const db = await getDb();
-  const { ObjectId } = await import("mongodb");
-  const doc = await db.collection<ExamDraft>("examDrafts").findOne({ _id: new ObjectId(id) });
-  return doc ?? null;
+  if (useMongoDB()) {
+    const { appendResult: mongoAppend } = await getMongoAdapter();
+    return mongoAppend(row);
+  }
+  const target = resultsPath();
+  await mkdir(path.dirname(target), { recursive: true });
+  const header = !existsSync(target);
+  const csv = stringify([row], { header, columns: RESULT_COLUMNS });
+  await appendFile(target, csv, "utf8");
 }

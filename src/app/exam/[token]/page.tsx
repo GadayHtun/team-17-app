@@ -22,6 +22,7 @@ import {
   groupByTier,
   locateQuestion,
 } from "./helpers";
+import styles from "./page.module.css";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -43,22 +44,6 @@ const TIER_COLORS: Record<string, { bg: string; text: string }> = {
 /* ------------------------------------------------------------------ */
 
 const S = {
-  page: {
-    minHeight: "100vh",
-    display: "flex",
-    flexDirection: "column" as const,
-    alignItems: "center",
-    fontFamily: "var(--font-geist-sans), system-ui, sans-serif",
-    background: "#1A1A1A",
-    padding: "32px 16px",
-  },
-  card: {
-    maxWidth: 640,
-    width: "100%",
-    background: "#2A2A2A",
-    borderRadius: 16,
-    padding: "32px",
-  },
   header: {
     marginBottom: 24,
   },
@@ -66,12 +51,6 @@ const S = {
     fontSize: 14,
     color: "#A0A0A0",
     margin: "0 0 8px",
-  },
-  progressRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
   },
   progressText: {
     fontSize: 13,
@@ -87,25 +66,10 @@ const S = {
     letterSpacing: "0.05em",
   },
   questionText: {
-    fontSize: 18,
     fontWeight: 600,
     color: "#FFFFFF",
     margin: "0 0 24px",
     lineHeight: 1.5,
-  },
-  option: {
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-    padding: "14px 16px",
-    marginBottom: 10,
-    borderRadius: 10,
-    border: "1px solid #404040",
-    background: "#333333",
-    cursor: "pointer",
-    transition: "border-color 0.15s, background 0.15s",
-    fontSize: 15,
-    color: "#E0E0E0",
   },
   optionSelected: {
     border: "1px solid #60A5FA",
@@ -126,22 +90,6 @@ const S = {
     height: 10,
     borderRadius: "50%",
     background: "#60A5FA",
-  },
-  navRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 24,
-    gap: 12,
-  },
-  btn: {
-    padding: "10px 20px",
-    borderRadius: 8,
-    border: "none",
-    fontSize: 14,
-    fontWeight: 600,
-    cursor: "pointer",
-    transition: "opacity 0.15s",
   },
   btnPrimary: {
     background: "#2563EB",
@@ -340,8 +288,8 @@ export default function TakeExamPage() {
 
   if (loading) {
     return (
-      <div style={S.page}>
-        <div style={{ ...S.card, textAlign: "center", color: "#A0A0A0" }}>
+      <div className={styles.page}>
+        <div className={styles.card} style={{ textAlign: "center", color: "#A0A0A0" }}>
           Loading exam…
         </div>
       </div>
@@ -354,8 +302,8 @@ export default function TakeExamPage() {
 
   if (error) {
     return (
-      <div style={S.page}>
-        <div style={{ ...S.card, textAlign: "center", color: "#A0A0A0" }}>
+      <div className={styles.page}>
+        <div className={styles.card} style={{ textAlign: "center", color: "#A0A0A0" }}>
           Redirecting…
         </div>
       </div>
@@ -371,8 +319,8 @@ export default function TakeExamPage() {
   if (mode === "review") {
     const answeredCount = flat.filter((q) => answers.has(q.id)).length;
     return (
-      <div style={S.page}>
-        <div style={S.card}>
+      <div className={styles.page}>
+        <div className={styles.card}>
           <h2 style={{ fontSize: 20, fontWeight: 700, color: "#FFFFFF", margin: "0 0 8px" }}>
             Review your answers
           </h2>
@@ -405,8 +353,8 @@ export default function TakeExamPage() {
             <button
               type="button"
               data-testid={TESTID.submitBtn}
+              className={styles.btn}
               style={{
-                ...S.btn,
                 ...S.btnPrimary,
                 padding: "12px 32px",
                 fontSize: 15,
@@ -431,8 +379,8 @@ export default function TakeExamPage() {
   const isLast = currentIndex === flat.length - 1;
 
   return (
-    <div style={S.page}>
-      <div style={S.card}>
+    <div className={styles.page}>
+      <div className={styles.card}>
         {/* Job title */}
         <p style={S.jobTitle}>{exam.jobTitle}</p>
 
@@ -444,7 +392,7 @@ export default function TakeExamPage() {
         )}
 
         {/* Progress + tier badge */}
-        <div style={S.progressRow}>
+        <div className={styles.progressRow}>
           <span style={S.progressText}>
             Question {currentIndex + 1} of {flat.length}
             {" · "}
@@ -463,7 +411,7 @@ export default function TakeExamPage() {
         </div>
 
         {/* Question text */}
-        <p data-testid={TESTID.questionText} style={S.questionText}>
+        <p data-testid={TESTID.questionText} className={styles.questionText} style={S.questionText}>
           {currentQuestion!.text}
         </p>
 
@@ -475,8 +423,8 @@ export default function TakeExamPage() {
               key={optIdx}
               type="button"
               data-testid={TESTID.examOption}
+              className={styles.option}
               style={{
-                ...S.option,
                 ...(selected ? S.optionSelected : {}),
               }}
               onClick={() => selectOption(currentQuestion!.id, optIdx)}
@@ -490,12 +438,12 @@ export default function TakeExamPage() {
         })}
 
         {/* Navigation */}
-        <div style={S.navRow}>
+        <div className={styles.navRow}>
           <button
             type="button"
             data-testid={TESTID.prevBtn}
+            className={styles.btn}
             style={{
-              ...S.btn,
               ...S.btnSecondary,
               ...(currentIndex === 0 ? S.btnDisabled : {}),
             }}
@@ -507,10 +455,8 @@ export default function TakeExamPage() {
           <button
             type="button"
             data-testid={isLast ? TESTID.reviewBtn : TESTID.nextBtn}
-            style={{
-              ...S.btn,
-              ...S.btnPrimary,
-            }}
+            className={styles.btn}
+            style={S.btnPrimary}
             onClick={goNext}
           >
             {isLast ? "Review answers →" : "Next →"}
