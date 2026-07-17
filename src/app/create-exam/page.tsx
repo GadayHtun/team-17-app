@@ -13,6 +13,13 @@ const MIN_COUNT = 1;
 const MAX_COUNT = 20;
 const DEFAULT_COUNT = 10;
 
+const JOB_TITLES = [
+  "Front End Developer React",
+  "Back-End API Developer",
+  "Quality Assurance Developer",
+  "Full-Stack Developer",
+] as const;
+
 interface FormState {
   jobTitle: string;
   jobDescription: string;
@@ -128,15 +135,21 @@ export default function CreateExamPage() {
         <label className={styles.label} htmlFor="job-title">
           Job title
         </label>
-        <input
+        <select
           id="job-title"
           data-testid={TESTID.jobTitleInput}
           className={styles.input}
-          type="text"
           value={form.jobTitle}
           onChange={(e) => updateField("jobTitle", e.target.value)}
           disabled={isLoading}
-        />
+        >
+          <option value="">Select a job title</option>
+          {JOB_TITLES.map((title) => (
+            <option key={title} value={title}>
+              {title}
+            </option>
+          ))}
+        </select>
         {errors.jobTitle && <p className={styles.error}>{errors.jobTitle}</p>}
 
         <label className={styles.label} htmlFor="job-description">
