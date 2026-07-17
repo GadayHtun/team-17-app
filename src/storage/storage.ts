@@ -10,7 +10,7 @@
  * DATA_DIR overrides the root (tests point it at a temp dir); defaults to "data".
  *
  * When MONGODB_URI is set (Vercel production), uses MongoDB instead of filesystem.
-
+*/
 import "server-only";
 
 import { getDb } from "./mongodb";
