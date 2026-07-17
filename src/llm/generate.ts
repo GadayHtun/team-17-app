@@ -1,6 +1,6 @@
 import type { NewQuestion, Difficulty } from "@/shared/types";
 import { buildPrompt, buildOnePrompt } from "./prompt";
-import { validateBatch, validateOne } from "./validate";
+import { validateBatch, validateOne, stripAndParse } from "./validate";
 import { getOpenRouter } from "./openrouter";
 
 const MAX_ATTEMPTS = 3;
@@ -115,13 +115,10 @@ export async function generateQuestions(input: GenerateInput): Promise<GenerateR
       allErrors.push(...validation.errors);
 
       // Salvage: collect valid questions from partial batch
-      try {
-        let cleaned = raw.trim();
-        if (cleaned.startsWith("```")) {
-          cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, "").replace(/\n?```\s*$/, "").trim();
-        }
-        const parsed = JSON.parse(cleaned) as { questions?: unknown[] };
-        if (Array.isArray(parsed.questions)) {
+      const salvageParse = stripAndParse(raw);
+      if (!("error" in salvageParse)) {
+        const parsed = salvageParse.parsed as { questions?: unknown[] };
+        if (parsed && Array.isArray(parsed.questions)) {
           for (const q of parsed.questions) {
             const singleResult = validateOne(q);
             if (singleResult.ok) {
@@ -129,8 +126,6 @@ export async function generateQuestions(input: GenerateInput): Promise<GenerateR
             }
           }
         }
-      } catch {
-        // Ignore parse errors during salvage
       }
 
       // Check if we have enough salvaged questions
@@ -160,9 +155,14 @@ export async function generateQuestions(input: GenerateInput): Promise<GenerateR
     }
   }
 
-  // All LLM attempts failed — fallback to fixtures
-  console.warn(`[LLM] All ${MAX_ATTEMPTS} attempts failed, falling back to fixtures`);
-  return serveFixtures(input);
+  // All LLM attempts failed. Surface it — contracts §4 maps this to 502.
+  // Never fall back to fixtures here: that would serve canned questions
+  // unrelated to the JD while looking indistinguishable from success.
+  console.error(`[LLM] All ${MAX_ATTEMPTS} attempts failed: ${allErrors.join(" | ")}`);
+  return {
+    ok: false,
+    error: `LLM generation failed after ${MAX_ATTEMPTS} attempts: ${allErrors.join(" | ")}`,
+  };
 }
 
 /**
@@ -177,13 +177,16 @@ function serveOneFixture(input: GenerateOneInput): GenerateOneResult {
   if (matching) {
     return { ok: true, question: matching };
   }
-  // Fallback: return any question matching difficulty
-  const any = fixtures.find((q) => q.difficulty === input.difficulty);
-  if (any) {
-    return { ok: true, question: any };
-  }
-  // Last resort: return first fixture
-  return { ok: true, question: fixtures[0] };
+
+  // Pool exhausted. Ignoring excludeTexts here would hand back a question the
+  // caller already has on screen, and relaxing the difficulty would answer a
+  // different question than the one asked — both look like success and neither
+  // is. The fixture pool is finite; say so.
+  const tierTotal = fixtures.filter((q) => q.difficulty === input.difficulty).length;
+  return {
+    ok: false,
+    error: `MOCK_LLM fixture pool exhausted for difficulty "${input.difficulty}": all ${tierTotal} fixture question(s) for this tier are already excluded. Add fixtures to fixtures/question-batch.json or run against the real LLM.`,
+  };
 }
 
 /**
@@ -203,7 +206,20 @@ export async function generateOne(input: GenerateOneInput): Promise<GenerateOneR
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
       const raw = await callLlm(prompt);
-      const validation = validateOne(JSON.parse(raw).questions?.[0] ?? raw);
+
+      const parseResult = stripAndParse(raw);
+      if ("error" in parseResult) {
+        allErrors.push(`Attempt ${attempt}: ${parseResult.error}`);
+        continue;
+      }
+
+      // Models answer a single-question prompt either wrapped ({ questions: [q] })
+      // or bare (the question object itself). Accept both.
+      const parsed = parseResult.parsed as { questions?: unknown[] };
+      const candidate =
+        parsed && Array.isArray(parsed.questions) ? parsed.questions[0] : parsed;
+
+      const validation = validateOne(candidate);
 
       if (validation.ok) {
         console.log(`[LLM] Single question success on attempt ${attempt}`);
@@ -218,7 +234,12 @@ export async function generateOne(input: GenerateOneInput): Promise<GenerateOneR
     }
   }
 
-  // All LLM attempts failed — fallback to fixtures
-  console.warn(`[LLM] All ${MAX_ATTEMPTS} attempts failed for single question, falling back to fixtures`);
-  return serveOneFixture(input);
+  // All LLM attempts failed. Surface it — contracts §4 maps this to 502.
+  console.error(
+    `[LLM] All ${MAX_ATTEMPTS} attempts failed for single question: ${allErrors.join(" | ")}`
+  );
+  return {
+    ok: false,
+    error: `LLM generation failed after ${MAX_ATTEMPTS} attempts: ${allErrors.join(" | ")}`,
+  };
 }
