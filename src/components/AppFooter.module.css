@@ -1,0 +1,15 @@
+.footer {
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid var(--card-border);
+  margin-top: auto;
+}
+
+.inner {
+  width: 100%;
+  max-width: 760px;
+  padding: 16px 24px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--faint);
+}

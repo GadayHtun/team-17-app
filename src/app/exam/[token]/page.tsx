@@ -48,14 +48,14 @@ const S = {
     display: "flex",
     flexDirection: "column" as const,
     alignItems: "center",
-    fontFamily: "var(--font-geist-sans), system-ui, sans-serif",
-    background: "#1A1A1A",
+    fontFamily: "var(--font-space-grotesk), system-ui, sans-serif",
+    background: "var(--background)",
     padding: "32px 16px",
   },
   card: {
     maxWidth: 640,
     width: "100%",
-    background: "#2A2A2A",
+    background: "var(--card)",
     borderRadius: 16,
     padding: "32px",
   },
@@ -64,7 +64,7 @@ const S = {
   },
   jobTitle: {
     fontSize: 14,
-    color: "#A0A0A0",
+    color: "var(--muted)",
     margin: "0 0 8px",
   },
   progressRow: {
@@ -75,7 +75,7 @@ const S = {
   },
   progressText: {
     fontSize: 13,
-    color: "#A0A0A0",
+    color: "var(--muted)",
   },
   tierBadge: {
     display: "inline-block",
@@ -89,7 +89,7 @@ const S = {
   questionText: {
     fontSize: 18,
     fontWeight: 600,
-    color: "#FFFFFF",
+    color: "var(--foreground)",
     margin: "0 0 24px",
     lineHeight: 1.5,
   },
@@ -100,22 +100,22 @@ const S = {
     padding: "14px 16px",
     marginBottom: 10,
     borderRadius: 10,
-    border: "1px solid #404040",
-    background: "#333333",
+    border: "1px solid var(--card-border)",
+    background: "var(--row)",
     cursor: "pointer",
     transition: "border-color 0.15s, background 0.15s",
     fontSize: 15,
-    color: "#E0E0E0",
+    color: "var(--foreground)",
   },
   optionSelected: {
-    border: "1px solid #60A5FA",
-    background: "#1E3A5F",
+    border: "1px solid var(--accent)",
+    background: "rgba(59, 130, 246, 0.12)",
   },
   radio: {
     width: 18,
     height: 18,
     borderRadius: "50%",
-    border: "2px solid #60A5FA",
+    border: "2px solid var(--accent)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -125,7 +125,7 @@ const S = {
     width: 10,
     height: 10,
     borderRadius: "50%",
-    background: "#60A5FA",
+    background: "var(--accent)",
   },
   navRow: {
     display: "flex",
@@ -144,25 +144,25 @@ const S = {
     transition: "opacity 0.15s",
   },
   btnPrimary: {
-    background: "#2563EB",
+    background: "var(--accent)",
     color: "#FFFFFF",
   },
   btnSecondary: {
-    background: "#404040",
-    color: "#E0E0E0",
+    background: "var(--row)",
+    color: "var(--foreground)",
   },
   btnDisabled: {
     opacity: 0.4,
     cursor: "not-allowed",
   },
   refreshNotice: {
-    background: "#422006",
-    border: "1px solid #92400E",
+    background: "var(--warn-bg)",
+    border: "1px solid var(--warn-fg)",
     borderRadius: 8,
     padding: "10px 14px",
     marginBottom: 20,
     fontSize: 13,
-    color: "#FCD34D",
+    color: "var(--warn-fg)",
     lineHeight: 1.5,
   },
   /* Review mode */
@@ -178,17 +178,17 @@ const S = {
     padding: "12px 14px",
     marginBottom: 8,
     borderRadius: 8,
-    background: answered ? "#1A2E1A" : "#2D1B1B",
-    border: `1px solid ${answered ? "#166534" : "#7F1D1D"}`,
+    background: answered ? "var(--easy-bg)" : "var(--hard-bg)",
+    border: `1px solid ${answered ? "var(--easy-fg)" : "var(--hard-fg)"}`,
     cursor: "pointer",
     fontSize: 14,
-    color: "#E0E0E0",
+    color: "var(--foreground)",
   }),
   reviewStatus: (answered: boolean) => ({
     width: 8,
     height: 8,
     borderRadius: "50%",
-    background: answered ? "#22C55E" : "#EF4444",
+    background: answered ? "var(--ok)" : "var(--err-fg)",
     flexShrink: 0,
   }),
   reviewText: {
@@ -199,7 +199,7 @@ const S = {
   },
   reviewMeta: {
     fontSize: 12,
-    color: "#A0A0A0",
+    color: "var(--muted)",
     flexShrink: 0,
   },
   submitRow: {
@@ -341,7 +341,7 @@ export default function TakeExamPage() {
   if (loading) {
     return (
       <div style={S.page}>
-        <div style={{ ...S.card, textAlign: "center", color: "#A0A0A0" }}>
+        <div style={{ ...S.card, textAlign: "center", color: "var(--muted)" }}>
           Loading exam…
         </div>
       </div>
@@ -355,7 +355,7 @@ export default function TakeExamPage() {
   if (error) {
     return (
       <div style={S.page}>
-        <div style={{ ...S.card, textAlign: "center", color: "#A0A0A0" }}>
+        <div style={{ ...S.card, textAlign: "center", color: "var(--muted)" }}>
           Redirecting…
         </div>
       </div>
@@ -373,10 +373,10 @@ export default function TakeExamPage() {
     return (
       <div style={S.page}>
         <div style={S.card}>
-          <h2 style={{ fontSize: 20, fontWeight: 700, color: "#FFFFFF", margin: "0 0 8px" }}>
+          <h2 style={{ fontSize: 20, fontWeight: 700, color: "var(--foreground)", margin: "0 0 8px" }}>
             Review your answers
           </h2>
-          <p style={{ fontSize: 14, color: "#A0A0A0", margin: "0 0 20px" }}>
+          <p style={{ fontSize: 14, color: "var(--muted)", margin: "0 0 20px" }}>
             {answeredCount} of {flat.length} answered — click a question to jump back
           </p>
           <ul style={S.reviewList}>
