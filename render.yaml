@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: exam-platform
+    runtime: node
+    plan: free
+    buildCommand: NODE_OPTIONS="--max-old-space-size=512" npm install --include=dev && NODE_OPTIONS="--max-old-space-size=512" npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: APP_ENV
+        value: production
+      - key: MOCK_LLM
+        value: "false"
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: LLM_MODEL
+        value: "google/gemma-4-26b-a4b-it:free"
+      - key: APP_URL
+        fromService:
+          name: exam-platform
+          type: web
+          property: host
