@@ -21,6 +21,18 @@ Repo-side pieces (already committed, nothing to install): `.claude/skills/*`
 Note: verify `.mcp.json` behavior and skill-pinning options against current
 Claude Code docs during setup — this area changes between versions.
 
+**Do not run `vitest --ui`.** `vitest@2.1.9` carries a critical advisory
+(GHSA — arbitrary file read + execute) that is only exploitable while the
+Vitest UI server is listening. `npm test` (`vitest run`) never starts it, which
+is why `npm audit`'s critical is accepted as unreachable rather than fixed —
+see issue #26. Running `--ui` makes it live. Clearing it needs vitest 2 → 4
+(two majors, all 8 machines, P7 call).
+
+**Never run `npm audit fix --force` in this repo.** It proposes `next@9.3.3`,
+downgrading from `next@16.2.10` (current latest) and breaking the app. `postcss`
+is held at a safe version by an `overrides` entry in `package.json` because
+`next` itself pins a vulnerable `8.4.31`; leave that override in place.
+
 ## 2. When to invoke what
 
 | Moment | Tool | Notes |
