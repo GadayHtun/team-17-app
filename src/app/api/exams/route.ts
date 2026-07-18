@@ -113,6 +113,8 @@ export async function POST(request: Request): Promise<Response> {
     createdAt,
     status: "active",
     questions,
+    currentQuestionIndex: 0,
+    currentDifficulty: "easy",
   };
 
   await createExam(exam);

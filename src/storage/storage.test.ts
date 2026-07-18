@@ -30,6 +30,8 @@ function sampleExam(token: string): ExamFile {
     candidateEmail: "candidate@mail.com",
     createdAt: "2026-07-07T10:30:00Z",
     status: "active",
+    currentQuestionIndex: 0,
+    currentDifficulty: "easy",
     questions: [
       {
         id: "q01",

@@ -1,42 +1,44 @@
 "use client";
 
 /**
- * Candidate exam page — Ticket 5 (P3).
+ * Candidate exam page — adaptive flow.
  *
  * Route: /exam/[token]
  * Fetches exam via API client; 404 → error page, 410 → expired page.
- * MCQ UI: one question per page, radio options, Prev/Next, tier badge, progress.
- * Review mode before submit with jump-to-question.
- * Answers stored as Map<questionId, optionIndex> — never an ordered array.
+ * Server-driven: one question at a time, submitted via POST /answer.
+ * No back navigation — candidates answer sequentially.
+ * Review mode is read-only.
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 import { ApiError, fetchApi } from "@/api/client";
 import { TESTID } from "@/shared/testids";
 import type { CandidateQuestion } from "@/shared/types";
 
-import {
-  type Section,
-  flattenSections,
-  groupByTier,
-  locateQuestion,
-} from "./helpers";
-
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
-interface ExamData {
+interface ExamResponse {
+  status: "exam";
   jobTitle: string;
-  questions: CandidateQuestion[];
+  question: CandidateQuestion;
+  questionNumber: number;
+  totalQuestions: number;
 }
 
-const TIER_COLORS: Record<string, { bg: string; text: string }> = {
-  easy: { bg: "#166534", text: "#FFFFFF" },
-  medium: { bg: "#92400E", text: "#FFFFFF" },
-  hard: { bg: "#7F1D1D", text: "#FFFFFF" },
-};
+interface ReviewQuestion extends CandidateQuestion {
+  answer: number | null;
+}
+
+interface ReviewResponse {
+  status: "review";
+  jobTitle: string;
+  questions: ReviewQuestion[];
+}
+
+type ExamData = ExamResponse | ReviewResponse;
 
 /* ------------------------------------------------------------------ */
 /*  Styles (inline, matching dark theme from end pages)                */
@@ -59,9 +61,6 @@ const S = {
     borderRadius: 16,
     padding: "32px",
   },
-  header: {
-    marginBottom: 24,
-  },
   jobTitle: {
     fontSize: 14,
     color: "var(--muted)",
@@ -76,15 +75,6 @@ const S = {
   progressText: {
     fontSize: 13,
     color: "var(--muted)",
-  },
-  tierBadge: {
-    display: "inline-block",
-    padding: "4px 10px",
-    borderRadius: 6,
-    fontSize: 12,
-    fontWeight: 600,
-    textTransform: "uppercase" as const,
-    letterSpacing: "0.05em",
   },
   questionText: {
     fontSize: 18,
@@ -129,10 +119,9 @@ const S = {
   },
   navRow: {
     display: "flex",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     alignItems: "center",
     marginTop: 24,
-    gap: 12,
   },
   btn: {
     padding: "10px 20px",
@@ -146,10 +135,6 @@ const S = {
   btnPrimary: {
     background: "var(--accent)",
     color: "#FFFFFF",
-  },
-  btnSecondary: {
-    background: "var(--row)",
-    color: "var(--foreground)",
   },
   btnDisabled: {
     opacity: 0.4,
@@ -180,7 +165,6 @@ const S = {
     borderRadius: 8,
     background: answered ? "var(--easy-bg)" : "var(--hard-bg)",
     border: `1px solid ${answered ? "var(--easy-fg)" : "var(--hard-fg)"}`,
-    cursor: "pointer",
     fontSize: 14,
     color: "var(--foreground)",
   }),
@@ -217,24 +201,23 @@ export default function TakeExamPage() {
   const { token } = useParams<{ token: string }>();
   const router = useRouter();
 
-  const [exam, setExam] = useState<ExamData | null>(null);
-  const [answers, setAnswers] = useState<Map<string, number>>(new Map());
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [mode, setMode] = useState<"exam" | "review">("exam");
+  const [examData, setExamData] = useState<ExamData | null>(null);
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<"not-found" | "expired" | "server" | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // Refresh guard — warn before leaving if answers exist
-  const hasAnswers = answers.size > 0;
+  // Track answered questions locally for the review screen
+  const [answeredMap, setAnsweredMap] = useState<Map<string, { text: string; marks: number; answer: number }>>(new Map());
+
+  // Refresh guard — warn before leaving
   useEffect(() => {
-    if (!hasAnswers) return;
     const handler = (e: BeforeUnloadEvent) => {
       e.preventDefault();
     };
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
-  }, [hasAnswers]);
+  }, []);
 
   // Fetch exam on mount
   useEffect(() => {
@@ -243,7 +226,7 @@ export default function TakeExamPage() {
       try {
         const data = await fetchApi<ExamData>(`/api/exams/${token}`);
         if (!cancelled) {
-          setExam(data);
+          setExamData(data);
           setLoading(false);
         }
       } catch (err) {
@@ -270,55 +253,55 @@ export default function TakeExamPage() {
     }
   }, [error, token, router]);
 
-  // Group questions by tier
-  const sections = useMemo(
-    () => (exam ? groupByTier(exam.questions) : []),
-    [exam],
-  );
-  const flat = useMemo(() => flattenSections(sections), [sections]);
+  // Submit answer and get next question
+  const goNext = useCallback(async () => {
+    if (!examData || examData.status !== "exam" || selectedOption === null || submitting) return;
 
-  // Current question
-  const currentQuestion = flat[currentIndex] ?? null;
-  const locate = currentQuestion ? locateQuestion(sections, currentQuestion.id) : null;
-
-  // Navigation
-  const goNext = useCallback(() => {
-    if (currentIndex < flat.length - 1) {
-      setCurrentIndex((i) => i + 1);
-      setMode("exam");
-    } else {
-      // Last question → go to review
-      setMode("review");
-    }
-  }, [currentIndex, flat.length]);
-
-  const goPrev = useCallback(() => {
-    if (currentIndex > 0) {
-      setCurrentIndex((i) => i - 1);
-      setMode("exam");
-    }
-  }, [currentIndex]);
-
-  const jumpTo = useCallback((idx: number) => {
-    setCurrentIndex(idx);
-    setMode("exam");
-  }, []);
-
-  // Answer selection
-  const selectOption = useCallback((questionId: string, optionIndex: number) => {
-    setAnswers((prev) => {
-      const next = new Map(prev);
-      next.set(questionId, optionIndex);
-      return next;
-    });
-  }, []);
-
-  // Submit
-  const handleSubmit = useCallback(async () => {
-    if (!exam || submitting) return;
     setSubmitting(true);
     try {
-      const payload = Object.fromEntries(answers);
+      const response = await fetchApi<ExamData>(`/api/exams/${token}/answer`, {
+        method: "POST",
+        body: JSON.stringify({
+          questionId: examData.question.id,
+          answerIndex: selectedOption,
+        }),
+      });
+
+      // Track the answered question locally
+      setAnsweredMap((prev) => {
+        const next = new Map(prev);
+        next.set(examData.question.id, {
+          text: examData.question.text,
+          marks: examData.question.marks,
+          answer: selectedOption,
+        });
+        return next;
+      });
+
+      setExamData(response);
+      setSelectedOption(null);
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 410) {
+        router.push(`/exam/${token}/expired`);
+      }
+      // Stay on page — submit failed, user can retry
+    } finally {
+      setSubmitting(false);
+    }
+  }, [examData, selectedOption, token, submitting, router]);
+
+  // Final submit
+  const handleSubmit = useCallback(async () => {
+    if (!examData || examData.status !== "review" || submitting) return;
+
+    setSubmitting(true);
+    try {
+      const payload: Record<string, number> = {};
+      for (const q of examData.questions) {
+        if (q.answer !== null) {
+          payload[q.id] = q.answer;
+        }
+      }
       await fetchApi(`/api/exams/${token}/submit`, {
         method: "POST",
         body: JSON.stringify({ answers: payload }),
@@ -329,10 +312,9 @@ export default function TakeExamPage() {
         router.push(`/exam/${token}/expired`);
       } else {
         setSubmitting(false);
-        // Stay on page — submit failed, user can retry
       }
     }
-  }, [exam, answers, token, submitting, router]);
+  }, [examData, token, submitting, router]);
 
   /* -------------------------------------------------------------- */
   /*  Render: loading                                                */
@@ -362,14 +344,14 @@ export default function TakeExamPage() {
     );
   }
 
-  if (!exam) return null;
+  if (!examData) return null;
 
   /* -------------------------------------------------------------- */
-  /*  Render: review mode                                            */
+  /*  Render: review mode (read-only)                                */
   /* -------------------------------------------------------------- */
 
-  if (mode === "review") {
-    const answeredCount = flat.filter((q) => answers.has(q.id)).length;
+  if (examData.status === "review") {
+    const answeredCount = examData.questions.filter((q) => q.answer !== null).length;
     return (
       <div style={S.page}>
         <div style={S.card}>
@@ -377,26 +359,18 @@ export default function TakeExamPage() {
             Review your answers
           </h2>
           <p style={{ fontSize: 14, color: "var(--muted)", margin: "0 0 20px" }}>
-            {answeredCount} of {flat.length} answered — click a question to jump back
+            {answeredCount} of {examData.questions.length} answered
           </p>
           <ul style={S.reviewList}>
-            {flat.map((q, idx) => {
-              const answered = answers.has(q.id);
-              const loc = locateQuestion(sections, q.id);
+            {examData.questions.map((q) => {
+              const answered = q.answer !== null;
               return (
                 <li key={q.id}>
-                  <button
-                    type="button"
-                    data-testid={TESTID.questionNavItem}
-                    style={S.reviewItem(answered)}
-                    onClick={() => jumpTo(idx)}
-                  >
+                  <div style={S.reviewItem(answered)}>
                     <span style={S.reviewStatus(answered)} />
                     <span style={S.reviewText}>{q.text}</span>
-                    <span style={S.reviewMeta}>
-                      {q.difficulty} · {q.marks}m
-                    </span>
-                  </button>
+                    <span style={S.reviewMeta}>{q.marks}m</span>
+                  </div>
                 </li>
               );
             })}
@@ -427,49 +401,40 @@ export default function TakeExamPage() {
   /*  Render: exam mode (one question at a time)                     */
   /* -------------------------------------------------------------- */
 
-  const tierColor = TIER_COLORS[currentQuestion!.difficulty] ?? TIER_COLORS.easy;
-  const isLast = currentIndex === flat.length - 1;
+  const { question, questionNumber, totalQuestions } = examData;
+  const hasSelection = selectedOption !== null;
 
   return (
     <div style={S.page}>
       <div style={S.card}>
         {/* Job title */}
-        <p style={S.jobTitle}>{exam.jobTitle}</p>
+        <p style={S.jobTitle}>{examData.jobTitle}</p>
 
-        {/* Refresh notice — only on first question with no answers yet */}
-        {currentIndex === 0 && answers.size === 0 && (
+        {/* Refresh notice — only on first question */}
+        {questionNumber === 1 && (
           <div style={S.refreshNotice} data-testid={TESTID.refreshNotice}>
             ⚠️ Don&apos;t refresh this page — your answers will be lost.
           </div>
         )}
 
-        {/* Progress + tier badge */}
+        {/* Progress */}
         <div style={S.progressRow}>
           <span style={S.progressText}>
-            Question {currentIndex + 1} of {flat.length}
-            {" · "}
-            Section {locate!.sectionIdx + 1} of {sections.length}
+            Question {questionNumber} of {totalQuestions}
           </span>
-          <span
-            data-testid={TESTID.tierBadge}
-            style={{
-              ...S.tierBadge,
-              background: tierColor.bg,
-              color: tierColor.text,
-            }}
-          >
-            {currentQuestion!.difficulty} · {currentQuestion!.marks}m
+          <span style={{ fontSize: 12, color: "var(--muted)" }}>
+            {question.marks}m
           </span>
         </div>
 
         {/* Question text */}
         <p data-testid={TESTID.questionText} style={S.questionText}>
-          {currentQuestion!.text}
+          {question.text}
         </p>
 
         {/* Options */}
-        {currentQuestion!.options.map((opt, optIdx) => {
-          const selected = answers.get(currentQuestion!.id) === optIdx;
+        {question.options.map((opt, optIdx) => {
+          const selected = selectedOption === optIdx;
           return (
             <button
               key={optIdx}
@@ -479,7 +444,7 @@ export default function TakeExamPage() {
                 ...S.option,
                 ...(selected ? S.optionSelected : {}),
               }}
-              onClick={() => selectOption(currentQuestion!.id, optIdx)}
+              onClick={() => setSelectedOption(optIdx)}
             >
               <span style={S.radio}>
                 {selected && <span style={S.radioDot} />}
@@ -489,31 +454,20 @@ export default function TakeExamPage() {
           );
         })}
 
-        {/* Navigation */}
+        {/* Navigation — Next only, no Previous */}
         <div style={S.navRow}>
           <button
             type="button"
-            data-testid={TESTID.prevBtn}
-            style={{
-              ...S.btn,
-              ...S.btnSecondary,
-              ...(currentIndex === 0 ? S.btnDisabled : {}),
-            }}
-            disabled={currentIndex === 0}
-            onClick={goPrev}
-          >
-            ← Previous
-          </button>
-          <button
-            type="button"
-            data-testid={isLast ? TESTID.reviewBtn : TESTID.nextBtn}
+            data-testid={TESTID.nextBtn}
             style={{
               ...S.btn,
               ...S.btnPrimary,
+              ...(!hasSelection || submitting ? S.btnDisabled : {}),
             }}
+            disabled={!hasSelection || submitting}
             onClick={goNext}
           >
-            {isLast ? "Review answers →" : "Next →"}
+            {submitting ? "Submitting…" : "Next →"}
           </button>
         </div>
       </div>
