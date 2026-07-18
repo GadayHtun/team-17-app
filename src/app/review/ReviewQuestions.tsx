@@ -185,7 +185,7 @@ export default function ReviewQuestions({
             </span>
             {onBack && (
               <button type="button" className={styles.linkBtn} onClick={onBack}>
-                Back
+                Back<span className={styles.srOnly}> to the exam form</span>
               </button>
             )}
           </div>
@@ -383,6 +383,7 @@ function ExamLinkBar({
         <button type="button" className={styles.ghostBtn} onClick={copy}>
           <CopyIcon />
           {copied ? "Copied" : "Copy"}
+          <span className={styles.srOnly}> exam link</span>
         </button>
         <button
           type="button"
@@ -399,6 +400,10 @@ function ExamLinkBar({
       <p className={styles.linkHint}>
         One-time link — it stops working once the candidate submits.
       </p>
+
+      <span className={styles.srOnly} role="status">
+        {copied ? "Link copied to clipboard" : ""}
+      </span>
 
       {copyFailed && (
         <p className={styles.warning} role="status">
