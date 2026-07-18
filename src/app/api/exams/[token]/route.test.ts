@@ -30,6 +30,8 @@ function examFile(overrides: Partial<ExamFile> = {}): ExamFile {
     candidateEmail: "candidate@mail.com",
     createdAt: "2026-07-07T10:30:00Z",
     status: "active",
+    currentQuestionIndex: 0,
+    currentDifficulty: "easy",
     questions: [
       {
         id: "q01",
@@ -60,10 +62,13 @@ describe("GET /api/exams/[token]", () => {
 
     const body = await res.json();
     expect(body.jobTitle).toBe("Frontend Developer");
-    expect(Object.keys(body.questions[0]).sort()).toEqual(
-      ["difficulty", "id", "marks", "options", "text"].sort(),
+    // Response now returns a single question, not an array
+    expect(body.question).toBeDefined();
+    expect(Object.keys(body.question).sort()).toEqual(
+      ["id", "marks", "options", "text"].sort(),
     );
-    expect(body.questions[0]).not.toHaveProperty("answerIndex");
+    expect(body.question).not.toHaveProperty("answerIndex");
+    expect(body.question).not.toHaveProperty("difficulty");
   });
 
   it("404 for a malformed token (no fs access)", async () => {

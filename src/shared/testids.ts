@@ -27,15 +27,13 @@ export const TESTID = {
   examLink: "exam-link",
 
   // TakeExam — candidate flow (P3, src/app/exam/[token]/)
-  tierBadge: "tier-badge",
   submitBtn: "submit-btn",
-  prevBtn: "prev-btn",
   nextBtn: "next-btn",
-  reviewBtn: "review-btn",
   questionText: "question-text",
   examOption: "exam-option",
-  questionNavItem: "question-nav-item",
   refreshNotice: "refresh-notice",
+  // Deprecated: tierBadge and prevBtn removed from adaptive flow — kept for e2e compat
+  tierBadge: "tier-badge",
 
   // End pages (P3, src/app/exam/[token]/)
   successPage: "success-page",

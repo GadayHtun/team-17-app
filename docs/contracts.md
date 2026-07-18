@@ -24,7 +24,8 @@ interface Question extends NewQuestion {
 }
 
 // What the candidate receives (GET /api/exams/[token]) — allowlisted:
-type CandidateQuestion = Omit<Question, "answerIndex">;
+// difficulty is excluded (interviewer-only); answerIndex is excluded (server-side only).
+type CandidateQuestion = Omit<Question, "answerIndex" | "difficulty">;
 ```
 
 ## 2. Exam file — `data/exams/{token}.json`
@@ -37,6 +38,8 @@ interface ExamFile {
   createdAt: string;             // ISO 8601
   status: "active" | "used";
   questions: Question[];         // easy block, then medium, then hard
+  currentQuestionIndex: number;  // adaptive: index of next question to serve
+  currentDifficulty: Difficulty; // adaptive: current difficulty tier
   sentAt?: string;               // set by send-invite (week 2)
   // present only after submit:
   submittedAt?: string;
