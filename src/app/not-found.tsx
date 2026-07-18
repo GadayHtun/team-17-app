@@ -9,8 +9,8 @@ export default function NotFound() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontFamily: "var(--font-geist-sans), system-ui, sans-serif",
-        background: "#1A1A1A",
+        fontFamily: "var(--font-space-grotesk), system-ui, sans-serif",
+        background: "var(--background)",
       }}
     >
       <div
@@ -18,7 +18,7 @@ export default function NotFound() {
           maxWidth: 400,
           width: "100%",
           padding: "48px 32px",
-          background: "#2A2A2A",
+          background: "var(--card)",
           borderRadius: 16,
           textAlign: "center",
         }}
@@ -55,7 +55,7 @@ export default function NotFound() {
             fontSize: 22,
             fontWeight: 700,
             margin: "0 0 16px",
-            color: "#FFFFFF",
+            color: "var(--foreground)",
           }}
         >
           Page not found
@@ -63,7 +63,7 @@ export default function NotFound() {
         <p
           style={{
             fontSize: 15,
-            color: "#A0A0A0",
+            color: "var(--muted)",
             margin: 0,
             lineHeight: 1.6,
           }}
