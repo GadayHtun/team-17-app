@@ -4,6 +4,11 @@ import type { Difficulty } from "@/shared/types";
 
 const VALID_DIFFICULTIES: readonly Difficulty[] = ["easy", "medium", "hard"];
 
+// SECURITY (#14): bound prompt size / LLM cost. excludeTexts is embedded in the
+// prompt, so cap both the array length and each string.
+const MAX_EXCLUDE = 100;
+const MAX_EXCLUDE_LEN = 500;
+
 /**
  * POST /api/exams/generate-one
  * Body: { jobDescription, difficulty, excludeTexts: string[] }
@@ -31,9 +36,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!Array.isArray(body.excludeTexts)) {
+    if (
+      !Array.isArray(body.excludeTexts) ||
+      body.excludeTexts.length > MAX_EXCLUDE ||
+      body.excludeTexts.some(
+        (t: unknown) => typeof t !== "string" || t.length > MAX_EXCLUDE_LEN
+      )
+    ) {
       return NextResponse.json(
-        { error: "excludeTexts must be an array of strings" },
+        {
+          error: `excludeTexts must be an array of at most ${MAX_EXCLUDE} strings, each ≤ ${MAX_EXCLUDE_LEN} chars`,
+        },
         { status: 400 }
       );
     }

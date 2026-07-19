@@ -1,0 +1,167 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card);
+  border-bottom: 1px solid var(--card-border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1024px;
+  padding: 0 24px;
+  height: 56px;
+}
+
+.logoLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logoImg {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  object-fit: contain;
+  transition: filter 0.2s ease;
+}
+
+:global([data-theme="dark"]) .logoImg {
+  filter: brightness(0) invert(1);
+}
+
+.logoText {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--foreground);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.nav {
+  display: flex;
+  gap: 4px;
+}
+
+.navLink {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  transition: color 0.15s, background 0.15s;
+}
+
+.navLink:hover {
+  color: var(--foreground);
+  background: var(--row);
+}
+
+.navLinkActive {
+  color: var(--foreground);
+  background: var(--row);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.themeToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.themeToggle:hover {
+  color: var(--foreground);
+  background: var(--row);
+}
+
+.burger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.burger:hover {
+  color: var(--foreground);
+  background: var(--row);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .logoText {
+    font-size: 12px;
+  }
+
+  .nav {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    right: 0;
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    padding: 8px;
+    background: var(--card);
+    border-bottom: 1px solid var(--card-border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 99;
+  }
+
+  .navOpen {
+    display: flex;
+  }
+
+  .navLink {
+    padding: 12px 16px;
+    font-size: 14px;
+    border-radius: 8px;
+  }
+
+  .burger {
+    display: flex;
+  }
+}
+
+@media (max-width: 480px) {
+  .inner {
+    padding: 0 16px;
+  }
+
+  .logoText {
+    font-size: 11px;
+  }
+
+  .logoImg {
+    width: 28px;
+    height: 28px;
+  }
+}

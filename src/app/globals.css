@@ -40,6 +40,43 @@
   --err-bg: rgba(240, 119, 106, 0.16);
 }
 
+[data-theme="light"] {
+  color-scheme: light;
+
+  --background: #e8e8ec;
+  --foreground: #1a1a1d;
+
+  /* surfaces — slightly muted, not pure white */
+  --card: #f0f0f3;
+  --card-border: rgba(0, 0, 0, 0.1);
+  --row: rgba(0, 0, 0, 0.05);
+  --row-border: rgba(0, 0, 0, 0.1);
+
+  /* text — same opacity ratios as dark, inverted */
+  --muted: rgba(0, 0, 0, 0.56);
+  --faint: rgba(0, 0, 0, 0.36);
+
+  /* controls — blue accent stays, primary inverts */
+  --accent: #3b82f6;
+  --primary-bg: #1a1a1d;
+  --primary-fg: #f0f0f3;
+
+  /* tiers — deeper for light bg readability */
+  --ok: #16a34a;
+  --easy-fg: #15803d;
+  --easy-bg: rgba(22, 163, 74, 0.12);
+  --medium-fg: #b45309;
+  --medium-bg: rgba(180, 83, 9, 0.12);
+  --hard-fg: #be123c;
+  --hard-bg: rgba(190, 18, 60, 0.12);
+
+  /* status */
+  --warn-fg: #b45309;
+  --warn-bg: rgba(180, 83, 9, 0.1);
+  --err-fg: #dc2626;
+  --err-bg: rgba(220, 38, 38, 0.1);
+}
+
 html {
   height: 100%;
 }
@@ -56,7 +93,7 @@ body {
   flex-direction: column;
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-space-grotesk), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -75,4 +112,9 @@ a {
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+/* Hide page content while splash screen is active */
+body.splash-active > *:not([data-splash]) {
+  visibility: hidden;
 }

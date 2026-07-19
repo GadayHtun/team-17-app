@@ -1,12 +1,13 @@
 /**
- * GET /api/exams/[token] — candidate fetch (contracts §3 row 4, Ticket 4).
+ * GET /api/exams/[token] — candidate fetch (contracts §3 row 4).
  *
- * Returns { jobTitle, questions: CandidateQuestion[] }.
+ * Returns the current question for the adaptive exam flow.
+ * When all questions are answered, returns review data.
  *
  * SECURITY (CLAUDE.md red lines 1 & 2):
  *  - Validate the token against the UUID regex BEFORE any path is built.
  *  - Build the candidate view by FIELD ALLOWLIST — answerIndex is never
- *    serialized. We construct new objects; we do not delete keys.
+ *    serialized. difficulty is intentional — candidates see tier badges (ADR 0003).
  *
  * Errors (contracts §4): 404 malformed/unknown token · 410 exam already used.
  */
@@ -46,8 +47,29 @@ export async function GET(
     return NextResponse.json({ error: "exam already used" }, { status: 410 });
   }
 
+  const answeredIds = new Set(Object.keys(exam.answers ?? {}));
+  const allAnswered = answeredIds.size >= exam.questions.length;
+
+  if (allAnswered) {
+    // All questions answered — return review data
+    const answers = exam.answers ?? {};
+    return NextResponse.json({
+      status: "review" as const,
+      jobTitle: exam.jobTitle,
+      questions: exam.questions.map((q) => ({
+        ...toCandidateQuestion(q),
+        answer: answers[q.id] ?? null,
+      })),
+    });
+  }
+
+  // Return current question
+  const currentQ = exam.questions[exam.currentQuestionIndex];
   return NextResponse.json({
+    status: "exam" as const,
     jobTitle: exam.jobTitle,
-    questions: exam.questions.map(toCandidateQuestion),
+    question: toCandidateQuestion(currentQ),
+    questionNumber: answeredIds.size + 1,
+    totalQuestions: exam.questions.length,
   });
 }

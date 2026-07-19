@@ -26,6 +26,7 @@ export interface Question extends NewQuestion {
 
 /**
  * What the candidate receives (GET /api/exams/[token]) — allowlisted.
+ * difficulty is intentional — candidates see tier badges (ADR 0003).
  */
 export type CandidateQuestion = Omit<Question, "answerIndex">;
 
@@ -40,6 +41,10 @@ export interface ExamFile {
   status: "active" | "used";
   questions: Question[];
   sentAt?: string;
+  /** Adaptive state: index of the next question to serve. */
+  currentQuestionIndex: number;
+  /** Adaptive state: current difficulty tier being served. */
+  currentDifficulty: Difficulty;
   submittedAt?: string;
   answers?: Record<string, number>;
   scores?: Scores;

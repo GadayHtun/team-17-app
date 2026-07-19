@@ -51,7 +51,7 @@ describe("fixtures parse into shared types", () => {
 });
 
 describe("CandidateQuestion shape (GET /api/exams/[token])", () => {
-  it("omits answerIndex, keeps the allowlisted fields", () => {
+  it("omits answerIndex, keeps difficulty and other allowlisted fields", () => {
     const q = (examActive as ExamFile).questions[0];
     const cq: CandidateQuestion = {
       id: q.id,
@@ -61,6 +61,7 @@ describe("CandidateQuestion shape (GET /api/exams/[token])", () => {
       marks: q.marks,
     };
     expect(cq).not.toHaveProperty("answerIndex");
+    expect(cq).toHaveProperty("difficulty");
     expect(Object.keys(cq).sort()).toEqual(
       ["difficulty", "id", "marks", "options", "text"].sort(),
     );
