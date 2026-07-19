@@ -118,8 +118,8 @@ export interface CreateExamResponse {
 }
 
 /** POST /api/exams/generate — the full batch (contracts §3 row 1). */
-export function generateQuestions(input: GenerateInput): Promise<{ questions: NewQuestion[] }> {
-  return post<{ questions: NewQuestion[] }>("/api/exams/generate", input);
+export function generateQuestions(input: GenerateInput): Promise<{ questions: NewQuestion[]; draftId: string }> {
+  return post<{ questions: NewQuestion[]; draftId: string }>("/api/exams/generate", input);
 }
 
 /** POST /api/exams/generate-one — one replacement question (contracts §3 row 2). */

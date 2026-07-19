@@ -119,7 +119,7 @@ export async function POST(request: Request): Promise<Response> {
 
   await createExam(exam);
 
-  const appUrl = process.env.APP_URL || "http://localhost:3000";
+  const appUrl = (process.env.APP_URL || "http://localhost:3000").replace(/\/+$/, "");
   const link = `${appUrl}/exam/${token}`;
 
   return NextResponse.json({ token, link, createdAt }, { status: 201 });

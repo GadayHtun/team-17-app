@@ -16,6 +16,14 @@ import { ApiError, fetchApi } from "@/api/client";
 import { TESTID } from "@/shared/testids";
 import type { CandidateQuestion } from "@/shared/types";
 
+import {
+  type Section,
+  flattenSections,
+  groupByTier,
+  locateQuestion,
+} from "./helpers";
+import styles from "./review.module.css";
+
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
@@ -75,6 +83,15 @@ const S = {
   progressText: {
     fontSize: 13,
     color: "var(--muted)",
+  },
+  tierBadge: {
+    display: "inline-block",
+    padding: "4px 10px",
+    borderRadius: 6,
+    fontSize: 12,
+    fontWeight: 600,
+    textTransform: "uppercase" as const,
+    letterSpacing: "0.05em",
   },
   questionText: {
     fontSize: 18,
@@ -136,6 +153,10 @@ const S = {
     background: "var(--accent)",
     color: "#FFFFFF",
   },
+  btnSecondary: {
+    background: "var(--row)",
+    color: "var(--foreground)",
+  },
   btnDisabled: {
     opacity: 0.4,
     cursor: "not-allowed",
@@ -149,47 +170,6 @@ const S = {
     fontSize: 13,
     color: "var(--warn-fg)",
     lineHeight: 1.5,
-  },
-  /* Review mode */
-  reviewList: {
-    listStyle: "none",
-    padding: 0,
-    margin: 0,
-  },
-  reviewItem: (answered: boolean) => ({
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-    padding: "12px 14px",
-    marginBottom: 8,
-    borderRadius: 8,
-    background: answered ? "var(--easy-bg)" : "var(--hard-bg)",
-    border: `1px solid ${answered ? "var(--easy-fg)" : "var(--hard-fg)"}`,
-    fontSize: 14,
-    color: "var(--foreground)",
-  }),
-  reviewStatus: (answered: boolean) => ({
-    width: 8,
-    height: 8,
-    borderRadius: "50%",
-    background: answered ? "var(--ok)" : "var(--err-fg)",
-    flexShrink: 0,
-  }),
-  reviewText: {
-    flex: 1,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap" as const,
-  },
-  reviewMeta: {
-    fontSize: 12,
-    color: "var(--muted)",
-    flexShrink: 0,
-  },
-  submitRow: {
-    display: "flex",
-    justifyContent: "center",
-    marginTop: 24,
   },
 } as const;
 
@@ -354,38 +334,32 @@ export default function TakeExamPage() {
     const answeredCount = examData.questions.filter((q) => q.answer !== null).length;
     return (
       <div style={S.page}>
-        <div style={S.card}>
+        <div className={styles.card}>
           <h2 style={{ fontSize: 20, fontWeight: 700, color: "var(--foreground)", margin: "0 0 8px" }}>
             Review your answers
           </h2>
           <p style={{ fontSize: 14, color: "var(--muted)", margin: "0 0 20px" }}>
             {answeredCount} of {examData.questions.length} answered
           </p>
-          <ul style={S.reviewList}>
+          <ul className={styles.list}>
             {examData.questions.map((q) => {
               const answered = q.answer !== null;
               return (
                 <li key={q.id}>
-                  <div style={S.reviewItem(answered)}>
-                    <span style={S.reviewStatus(answered)} />
-                    <span style={S.reviewText}>{q.text}</span>
-                    <span style={S.reviewMeta}>{q.marks}m</span>
+                  <div className={`${styles.item} ${answered ? styles.itemAnswered : styles.itemUnanswered}`}>
+                    <span className={`${styles.status} ${answered ? styles.statusAnswered : styles.statusUnanswered}`} />
+                    <span className={styles.text}>{q.text}</span>
+                    <span className={styles.meta}>{q.marks}m</span>
                   </div>
                 </li>
               );
             })}
           </ul>
-          <div style={S.submitRow}>
+          <div className={styles.submitRow}>
             <button
               type="button"
               data-testid={TESTID.submitBtn}
-              style={{
-                ...S.btn,
-                ...S.btnPrimary,
-                padding: "12px 32px",
-                fontSize: 15,
-                ...(submitting ? S.btnDisabled : {}),
-              }}
+              className={`${styles.submitBtn} ${submitting ? styles.submitBtnDisabled : ""}`.trim()}
               disabled={submitting}
               onClick={handleSubmit}
             >
