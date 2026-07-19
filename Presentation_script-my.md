@@ -1,4 +1,4 @@
-ဒီမှာ ပေးထားတဲ့ Presentation Slides တွေထဲက ပိုမိုပြည့်စုံတဲ့အချက်အလက်တွေ (ဥပမာ- Computer Adaptive Testing (CAT) Engine စနစ်၊ Redis Cache သုံးပြီး Low Latency ဖြစ်အောင် လုပ်ထားပုံ၊ weighted formula နဲ့ အမှတ်တွက်ပုံနဲ့ Anti-Scope အချက်အလက်တွေ) ကိုပါ အကုန်လွှမ်းခြုံပြီး နားထောင်လို့ ပိုချောမွေ့အောင် ပြန်လည်ရေးသားပေးထားတဲ့ **Demo Video Script** ဖြစ်ပါတယ်။
+ဒီမှာ ပေးထားတဲ့ Presentation Slides တွေထဲက ပိုမိုပြည့်စုံတဲ့အချက်အလက်တွေ (ဥပမာ- Computer Adaptive Testing (CAT) Engine စနစ်၊ MongoDB Database သုံးပြီး Data Persistence လုပ်ထားပုံ၊ weighted formula နဲ့ အမှတ်တွက်ပုံနဲ့ Anti-Scope အချက်အလက်တွေ) ကိုပါ အကုန်လွှမ်းခြုံပြီး နားထောင်လို့ ပိုချောမွေ့အောင် ပြန်လည်ရေးသားပေးထားတဲ့ **Demo Video Script** ဖြစ်ပါတယ်။
 
 စကားပြောဟန်ကို ယေဘုယျဆန်တဲ့ မြန်မာပြန်မျိုး မဟုတ်ဘဲ နည်းပညာပိုင်းဆိုင်ရာ လုပ်ငန်းခွင်သုံး စကားပြောပုံစံ (Natural Tech-Professional Tone) အဖြစ် ပြောင်းလဲပေးထားပါတယ်။
 
@@ -56,7 +56,7 @@
 ### 4. TECH HIGHLIGHT — နည်းပညာပိုင်း (၄၅ စက္ကန့်)
 
 **[Slide: Platform Technical Architecture & Project Boundaries]**
-"ဒီစနစ်ရဲ့ Architecture ပိုင်းကို ပြောရရင်— Frontend ကို **Next.js (TypeScript)** နဲ့ **Tailwind CSS** သုံးပြီး Multi-state UI တွေကို တည်ဆောက်ထားပါတယ်။ Backend ကိုတော့ **FastAPI (Python)** နဲ့ မောင်းနှင်ထားပြီး၊ AI အပိုင်းအတွက် OpenRouter ကတစ်ဆင့် **Gemini** နဲ့ **OpenAI APIs** တွေကို ချိတ်ဆက်ကာ Structured JSON Output ထုတ်ယူထားပါတယ်။ Candidate ဖြေဆိုနေစဉ်အတွင်း Sub-millisecond ခွဲခွာမှုအတွင်း Low Latency နဲ့ မေးခွန်းတွေ ပို့ဆောင်ပေးနိုင်ဖို့ **Redis Cache** ကို သုံးထားပြီး၊ ပြီးဆုံးသွားတဲ့ Interview Structures တွေကိုတော့ **PostgreSQL** ထဲမှာ အမြဲတမ်း Persist လုပ်သိမ်းဆည်းပါတယ်။
+"ဒီစနစ်ရဲ့ Architecture ပိုင်းကို ပြောရရင်— Frontend ကို **Next.js (TypeScript)** နဲ့ **Tailwind CSS** သုံးပြီး Multi-state UI တွေကို တည်ဆောက်ထားပါတယ်။ Backend ကိုတော့ **Next.js API Routes** နဲ့ မောင်းနှင်ထားပြီး၊ AI အပိုင်းအတွက် **OpenAI APIs** တွေကို ချိတ်ဆက်ကာ Structured JSON Output ထုတ်ယူထားပါတယ်။ Data Persistence အတွက် **MongoDB** ကို Vercel Production Environment မှာ အသုံးပြုထားပြီး၊ Local Development အတွက်တော့ File System Storage ကို အသုံးပြုပါတယ်။
 
 Prompt Engineering အပိုင်းမှာလည်း JD ကို Untrusted Data အဖြစ် ယူဆပြီး Length Cap တွေ ထားရှိပါတယ်။ JSON Parse, Schema Check နဲ့ Quality Check ဆိုပြီး Three-layer Validation စနစ် ထည့်သွင်းထားကာ Retry ၃ ကြိမ်အထိ ပြန်ကြိုးစားအောင် လုပ်ထားပါတယ်။ အဖွဲ့တွင်း Workflow အနေနဲ့ Claude Code နဲ့ TDD workflow ကို သုံးပြီး စနစ်တကျ ရေးသားထားတာ ဖြစ်ပါတယ်။"
 
