@@ -25,6 +25,7 @@ function toCandidateQuestion(q: Question): CandidateQuestion {
     id: q.id,
     text: q.text,
     options: q.options,
+    difficulty: q.difficulty,
     marks: q.marks,
   };
 }

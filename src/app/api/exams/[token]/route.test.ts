@@ -65,10 +65,10 @@ describe("GET /api/exams/[token]", () => {
     // Response now returns a single question, not an array
     expect(body.question).toBeDefined();
     expect(Object.keys(body.question).sort()).toEqual(
-      ["id", "marks", "options", "text"].sort(),
+      ["difficulty", "id", "marks", "options", "text"].sort(),
     );
     expect(body.question).not.toHaveProperty("answerIndex");
-    expect(body.question).not.toHaveProperty("difficulty");
+    expect(body.question).toHaveProperty("difficulty");
   });
 
   it("404 for a malformed token (no fs access)", async () => {

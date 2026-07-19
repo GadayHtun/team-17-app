@@ -26,9 +26,9 @@ export interface Question extends NewQuestion {
 
 /**
  * What the candidate receives (GET /api/exams/[token]) — allowlisted.
- * difficulty is intentionally excluded — only interviewers see it.
+ * difficulty is intentional — candidates see tier badges (ADR 0003).
  */
-export type CandidateQuestion = Omit<Question, "answerIndex" | "difficulty">;
+export type CandidateQuestion = Omit<Question, "answerIndex">;
 
 /**
  * Exam file stored at data/exams/{token}.json

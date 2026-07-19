@@ -7,7 +7,7 @@
  * SECURITY (CLAUDE.md red lines 1 & 2):
  *  - Validate the token against the UUID regex BEFORE any path is built.
  *  - Build the candidate view by FIELD ALLOWLIST — answerIndex is never
- *    serialized. difficulty is never serialized (interviewer-only).
+ *    serialized. difficulty is intentional — candidates see tier badges (ADR 0003).
  *
  * Errors (contracts §4): 404 malformed/unknown token · 410 exam already used.
  */
@@ -17,13 +17,13 @@ import type { CandidateQuestion, Question } from "@/shared/types";
 import { isValidToken, loadExam } from "@/storage/storage";
 
 // Answer-strip allowlist: the ONLY fields a candidate ever receives.
-// answerIndex is intentionally absent; difficulty is intentionally absent
-// (interviewer-only); marks is intentional.
+// answerIndex is intentionally absent; marks + difficulty are intentional (ADR 0003).
 function toCandidateQuestion(q: Question): CandidateQuestion {
   return {
     id: q.id,
     text: q.text,
     options: q.options,
+    difficulty: q.difficulty,
     marks: q.marks,
   };
 }

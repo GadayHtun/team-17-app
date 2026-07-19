@@ -51,18 +51,19 @@ describe("fixtures parse into shared types", () => {
 });
 
 describe("CandidateQuestion shape (GET /api/exams/[token])", () => {
-  it("omits answerIndex and difficulty, keeps the allowlisted fields", () => {
+  it("omits answerIndex, keeps difficulty and other allowlisted fields", () => {
     const q = (examActive as ExamFile).questions[0];
     const cq: CandidateQuestion = {
       id: q.id,
       text: q.text,
       options: q.options,
+      difficulty: q.difficulty,
       marks: q.marks,
     };
     expect(cq).not.toHaveProperty("answerIndex");
-    expect(cq).not.toHaveProperty("difficulty");
+    expect(cq).toHaveProperty("difficulty");
     expect(Object.keys(cq).sort()).toEqual(
-      ["id", "marks", "options", "text"].sort(),
+      ["difficulty", "id", "marks", "options", "text"].sort(),
     );
   });
 });
