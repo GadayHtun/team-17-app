@@ -22,7 +22,7 @@ import {
   groupByTier,
   locateQuestion,
 } from "./helpers";
-import styles from "./page.module.css";
+import styles from "./review.module.css";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -44,17 +44,39 @@ const TIER_COLORS: Record<string, { bg: string; text: string }> = {
 /* ------------------------------------------------------------------ */
 
 const S = {
+  page: {
+    minHeight: "100vh",
+    display: "flex",
+    flexDirection: "column" as const,
+    alignItems: "center",
+    fontFamily: "var(--font-space-grotesk), system-ui, sans-serif",
+    background: "var(--background)",
+    padding: "32px 16px",
+  },
+  card: {
+    maxWidth: 640,
+    width: "100%",
+    background: "var(--card)",
+    borderRadius: 16,
+    padding: "32px",
+  },
   header: {
     marginBottom: 24,
   },
   jobTitle: {
     fontSize: 14,
-    color: "#A0A0A0",
+    color: "var(--muted)",
     margin: "0 0 8px",
+  },
+  progressRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
   },
   progressText: {
     fontSize: 13,
-    color: "#A0A0A0",
+    color: "var(--muted)",
   },
   tierBadge: {
     display: "inline-block",
@@ -66,20 +88,35 @@ const S = {
     letterSpacing: "0.05em",
   },
   questionText: {
+    fontSize: 18,
     fontWeight: 600,
-    color: "#FFFFFF",
+    color: "var(--foreground)",
     margin: "0 0 24px",
     lineHeight: 1.5,
   },
+  option: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    padding: "14px 16px",
+    marginBottom: 10,
+    borderRadius: 10,
+    border: "1px solid var(--card-border)",
+    background: "var(--row)",
+    cursor: "pointer",
+    transition: "border-color 0.15s, background 0.15s",
+    fontSize: 15,
+    color: "var(--foreground)",
+  },
   optionSelected: {
-    border: "1px solid #60A5FA",
-    background: "#1E3A5F",
+    border: "1px solid var(--accent)",
+    background: "rgba(59, 130, 246, 0.12)",
   },
   radio: {
     width: 18,
     height: 18,
     borderRadius: "50%",
-    border: "2px solid #60A5FA",
+    border: "2px solid var(--accent)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -89,71 +126,45 @@ const S = {
     width: 10,
     height: 10,
     borderRadius: "50%",
-    background: "#60A5FA",
+    background: "var(--accent)",
+  },
+  navRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 24,
+    gap: 12,
+  },
+  btn: {
+    padding: "10px 20px",
+    borderRadius: 8,
+    border: "none",
+    fontSize: 14,
+    fontWeight: 600,
+    cursor: "pointer",
+    transition: "opacity 0.15s",
   },
   btnPrimary: {
-    background: "#2563EB",
+    background: "var(--accent)",
     color: "#FFFFFF",
   },
   btnSecondary: {
-    background: "#404040",
-    color: "#E0E0E0",
+    background: "var(--row)",
+    color: "var(--foreground)",
   },
   btnDisabled: {
     opacity: 0.4,
     cursor: "not-allowed",
   },
   refreshNotice: {
-    background: "#422006",
-    border: "1px solid #92400E",
+    background: "var(--warn-bg)",
+    border: "1px solid var(--warn-fg)",
     borderRadius: 8,
     padding: "10px 14px",
     marginBottom: 20,
     fontSize: 13,
-    color: "#FCD34D",
+    color: "var(--warn-fg)",
     lineHeight: 1.5,
-  },
-  /* Review mode */
-  reviewList: {
-    listStyle: "none",
-    padding: 0,
-    margin: 0,
-  },
-  reviewItem: (answered: boolean) => ({
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-    padding: "12px 14px",
-    marginBottom: 8,
-    borderRadius: 8,
-    background: answered ? "#1A2E1A" : "#2D1B1B",
-    border: `1px solid ${answered ? "#166534" : "#7F1D1D"}`,
-    cursor: "pointer",
-    fontSize: 14,
-    color: "#E0E0E0",
-  }),
-  reviewStatus: (answered: boolean) => ({
-    width: 8,
-    height: 8,
-    borderRadius: "50%",
-    background: answered ? "#22C55E" : "#EF4444",
-    flexShrink: 0,
-  }),
-  reviewText: {
-    flex: 1,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap" as const,
-  },
-  reviewMeta: {
-    fontSize: 12,
-    color: "#A0A0A0",
-    flexShrink: 0,
-  },
-  submitRow: {
-    display: "flex",
-    justifyContent: "center",
-    marginTop: 24,
   },
 } as const;
 
@@ -288,8 +299,8 @@ export default function TakeExamPage() {
 
   if (loading) {
     return (
-      <div className={styles.page}>
-        <div className={styles.card} style={{ textAlign: "center", color: "#A0A0A0" }}>
+      <div style={S.page}>
+        <div style={{ ...S.card, textAlign: "center", color: "var(--muted)" }}>
           Loading exam…
         </div>
       </div>
@@ -302,8 +313,8 @@ export default function TakeExamPage() {
 
   if (error) {
     return (
-      <div className={styles.page}>
-        <div className={styles.card} style={{ textAlign: "center", color: "#A0A0A0" }}>
+      <div style={S.page}>
+        <div style={{ ...S.card, textAlign: "center", color: "var(--muted)" }}>
           Redirecting…
         </div>
       </div>
@@ -319,15 +330,15 @@ export default function TakeExamPage() {
   if (mode === "review") {
     const answeredCount = flat.filter((q) => answers.has(q.id)).length;
     return (
-      <div className={styles.page}>
+      <div style={S.page}>
         <div className={styles.card}>
-          <h2 style={{ fontSize: 20, fontWeight: 700, color: "#FFFFFF", margin: "0 0 8px" }}>
+          <h2 style={{ fontSize: 20, fontWeight: 700, color: "var(--foreground)", margin: "0 0 8px" }}>
             Review your answers
           </h2>
-          <p style={{ fontSize: 14, color: "#A0A0A0", margin: "0 0 20px" }}>
+          <p style={{ fontSize: 14, color: "var(--muted)", margin: "0 0 20px" }}>
             {answeredCount} of {flat.length} answered — click a question to jump back
           </p>
-          <ul style={S.reviewList}>
+          <ul className={styles.list}>
             {flat.map((q, idx) => {
               const answered = answers.has(q.id);
               const loc = locateQuestion(sections, q.id);
@@ -336,12 +347,14 @@ export default function TakeExamPage() {
                   <button
                     type="button"
                     data-testid={TESTID.questionNavItem}
-                    style={S.reviewItem(answered)}
+                    className={`${styles.item} ${answered ? styles.itemAnswered : styles.itemUnanswered}`}
                     onClick={() => jumpTo(idx)}
                   >
-                    <span style={S.reviewStatus(answered)} />
-                    <span style={S.reviewText}>{q.text}</span>
-                    <span style={S.reviewMeta}>
+                    <span
+                      className={`${styles.status} ${answered ? styles.statusAnswered : styles.statusUnanswered}`}
+                    />
+                    <span className={styles.text}>{q.text}</span>
+                    <span className={styles.meta}>
                       {q.difficulty} · {q.marks}m
                     </span>
                   </button>
@@ -349,17 +362,11 @@ export default function TakeExamPage() {
               );
             })}
           </ul>
-          <div style={S.submitRow}>
+          <div className={styles.submitRow}>
             <button
               type="button"
               data-testid={TESTID.submitBtn}
-              className={styles.btn}
-              style={{
-                ...S.btnPrimary,
-                padding: "12px 32px",
-                fontSize: 15,
-                ...(submitting ? S.btnDisabled : {}),
-              }}
+              className={`${styles.submitBtn} ${submitting ? styles.submitBtnDisabled : ""}`.trim()}
               disabled={submitting}
               onClick={handleSubmit}
             >
@@ -379,8 +386,8 @@ export default function TakeExamPage() {
   const isLast = currentIndex === flat.length - 1;
 
   return (
-    <div className={styles.page}>
-      <div className={styles.card}>
+    <div style={S.page}>
+      <div style={S.card}>
         {/* Job title */}
         <p style={S.jobTitle}>{exam.jobTitle}</p>
 
@@ -392,7 +399,7 @@ export default function TakeExamPage() {
         )}
 
         {/* Progress + tier badge */}
-        <div className={styles.progressRow}>
+        <div style={S.progressRow}>
           <span style={S.progressText}>
             Question {currentIndex + 1} of {flat.length}
             {" · "}
@@ -411,7 +418,7 @@ export default function TakeExamPage() {
         </div>
 
         {/* Question text */}
-        <p data-testid={TESTID.questionText} className={styles.questionText} style={S.questionText}>
+        <p data-testid={TESTID.questionText} style={S.questionText}>
           {currentQuestion!.text}
         </p>
 
@@ -423,8 +430,8 @@ export default function TakeExamPage() {
               key={optIdx}
               type="button"
               data-testid={TESTID.examOption}
-              className={styles.option}
               style={{
+                ...S.option,
                 ...(selected ? S.optionSelected : {}),
               }}
               onClick={() => selectOption(currentQuestion!.id, optIdx)}
@@ -438,12 +445,12 @@ export default function TakeExamPage() {
         })}
 
         {/* Navigation */}
-        <div className={styles.navRow}>
+        <div style={S.navRow}>
           <button
             type="button"
             data-testid={TESTID.prevBtn}
-            className={styles.btn}
             style={{
+              ...S.btn,
               ...S.btnSecondary,
               ...(currentIndex === 0 ? S.btnDisabled : {}),
             }}
@@ -455,8 +462,10 @@ export default function TakeExamPage() {
           <button
             type="button"
             data-testid={isLast ? TESTID.reviewBtn : TESTID.nextBtn}
-            className={styles.btn}
-            style={S.btnPrimary}
+            style={{
+              ...S.btn,
+              ...S.btnPrimary,
+            }}
             onClick={goNext}
           >
             {isLast ? "Review answers →" : "Next →"}

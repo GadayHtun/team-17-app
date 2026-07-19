@@ -1,0 +1,125 @@
+/* Review-mode screen (candidate exam flow). CSS module — the rest of this
+   route uses inline styles, but wrapping/stacking here needs @media. */
+
+.card {
+  max-width: 640px;
+  width: 100%;
+  background: var(--card);
+  border-radius: 16px;
+  padding: 32px;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  text-align: left;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--foreground);
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.itemAnswered {
+  background: var(--easy-bg);
+  border-color: var(--easy-fg);
+}
+
+.itemUnanswered {
+  background: var(--hard-bg);
+  border-color: var(--hard-fg);
+}
+
+.status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.statusAnswered {
+  background: var(--ok);
+}
+
+.statusUnanswered {
+  background: var(--err-fg);
+}
+
+.text {
+  flex: 1 1 220px;
+  min-width: 0;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.meta {
+  font-size: 12px;
+  color: var(--muted);
+  flex-shrink: 0;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.submitRow {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.submitBtn {
+  padding: 14px 40px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  min-width: 220px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+  transition: opacity 120ms ease;
+}
+
+.submitBtn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.submitBtnDisabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+@media (max-width: 600px) {
+  .card {
+    padding: 20px 16px;
+  }
+
+  .meta {
+    flex-basis: 100%;
+    margin-left: 20px;
+    text-align: left;
+  }
+
+  .submitBtn {
+    width: 100%;
+    min-width: 0;
+  }
+}
